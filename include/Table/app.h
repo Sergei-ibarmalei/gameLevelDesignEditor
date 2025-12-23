@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include "SpriteTable/spritetable.h"
 
 class App {
 public:

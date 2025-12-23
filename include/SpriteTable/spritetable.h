@@ -8,6 +8,8 @@
 #include "position.h"
 #include "consts.h"
 
+
+
 struct Transform
 {
     SDL_FRect rect;
@@ -111,7 +113,20 @@ public:
 class SpriteTable
 {
 private:
-
+    bool init {true};
+    bool initSpriteTable(SDL_Renderer* r);
+    void firstInit(const std::vector<SDL_Rect>& atlasRects);
+    Mechanic mechanic;
+    Atlas* atlas {nullptr};
 public:
+    SpriteTable(SDL_Renderer* r);
+    ~SpriteTable();
+    SpriteTable(const SpriteTable&) = delete;
+    SpriteTable(SpriteTable&&) = delete;
+    SpriteTable& operator=(const SpriteTable&) = delete;
+    SpriteTable& operator=(SpriteTable&&) = delete;
+    bool Status() const {return init;}
+
+
 };
 

@@ -1,5 +1,8 @@
 #include "SpriteTable/spritetable.h"
 
+const char* filePath[] = {"assets/one.png",  "assets/two.png",  "assets/three.png",
+                          "assets/four.png", "assets/five.png", "assets/six.png"};
+
 Sprite::Sprite(const SDL_Rect& rectFromAtlas, float x, float y)
 {
     sourcerect = rectFromAtlas;
@@ -140,4 +143,64 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size,
     tmpAtlasSurface = nullptr;
     return true;
 
+}
+
+SpriteTable::SpriteTable(SDL_Renderer* r)
+{
+    if (!r)
+    {
+#ifdef LOG
+        std::cout << "Cannot initiate Sprite Table, abort.\n";
+#endif
+        init = false;
+        return;
+    }
+    init = initSpriteTable(r);
+
+
+
+
+
+
+}
+
+SpriteTable::~SpriteTable()
+{
+    delete atlas;
+    atlas = nullptr;
+}
+
+bool SpriteTable::initSpriteTable(SDL_Renderer* r)
+{
+    atlas = new Atlas(r, SPRITE_TABLE_COUNT_TOTAL, filePath);
+    if (!atlas->Status())
+    {
+#ifdef LOG
+        std::cout << "Cannot initiate atlas, abort.\n";
+#endif
+        return false;
+    }
+    firstInit(atlas->GetSourceRects());
+    mechanic.chRect.Init(mechanic.vectorSprite[0].transform.GetRect());
+    mechanic.index = 0;
+
+    return true;
+}
+
+void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects)
+{
+    auto startX = BORDER.x;
+    auto startY = BORDER.y;
+    mechanic.vectorSprite.reserve(SPRITE_TABLE_COUNT_TOTAL);
+    for (size_t i = 0; i < SPRITE_TABLE_COUNT_TOTAL; ++i)
+    {
+#ifdef POS_HORIZONTAL
+        auto spriteX = startX + i * (SPRITE_SIZE + PADDING);
+        Sprite s {atlasRects[i], spriteX, startY};
+#else
+        auto spriteY = startY + i * (SPRITE_SIZE + PADDING);
+        Sprite s {atlasRects[i], startX, spriteY};
+#endif
+        mechanic.vectorSprite.emplace_back(s);
+    }
 }
