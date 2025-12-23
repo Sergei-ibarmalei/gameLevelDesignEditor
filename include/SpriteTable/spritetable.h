@@ -43,3 +43,44 @@ public:
 #endif
 
 };
+
+class ChosenRect
+{
+public:
+    Transform transform;
+    ChosenRect() = default;
+    void Init(const SDL_FRect& target)
+    {
+        transform.rect =
+        {
+            target.x - CHOSENRECT_PADDING,
+            target.y - CHOSENRECT_PADDING,
+            target.w + 2 * CHOSENRECT_PADDING,
+            target.h + 2 * CHOSENRECT_PADDING
+            
+        };
+        transform.SetOrigin();
+    }
+    void SetOrigin() {transform.SetOrigin(); }
+};
+
+struct Logics
+{
+    bool move_process{ false };
+    bool moves_white{ true };
+    bool moves_sprites{ false };
+    bool white_at_right_end{ false };
+    bool white_at_left_end{ false };
+};
+
+struct Mechanic
+{
+    Logics logic;
+    ESpritesDirection dir = ESpritesDirection::RIGHT;
+    int index{ 0 };
+    int sign{ 0 };
+    float fullPath{ 0.0f };
+    ChosenRect chRect;
+    std::vector<Sprite> vectorSprite;
+};
+
