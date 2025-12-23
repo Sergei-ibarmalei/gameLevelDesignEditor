@@ -5,7 +5,7 @@
 
 class App {
 public:
-    bool init();
+    bool init(int w, int h);
     void run();
     void shutdown();
 

@@ -1,7 +1,7 @@
 #include "Table/app.h"
 #include <iostream>
 
-bool App::init()
+bool App::init(int width, int height)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -19,7 +19,7 @@ bool App::init()
         "Table",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800, 600,
+        width, height,
         SDL_WINDOW_SHOWN
     );
 
