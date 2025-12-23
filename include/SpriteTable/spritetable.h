@@ -44,6 +44,10 @@ public:
         return std::abs(transform.rect.y - other_y) < 0.01f;
     }
 #endif
+    const SDL_Rect& SourceRect() const
+    {
+        return sourcerect;
+    }
 
 };
 
@@ -126,7 +130,8 @@ public:
     SpriteTable& operator=(const SpriteTable&) = delete;
     SpriteTable& operator=(SpriteTable&&) = delete;
     bool Status() const {return init;}
-
+    const std::vector<Sprite>& MechanicVectorSprite() const {return mechanic.vectorSprite;}
+    SDL_Texture* AtlasTexture() const {return atlas->GetAtlasTexture();}
 
 };
 
