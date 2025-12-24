@@ -99,13 +99,15 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
 }
 
 EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
-    int rows, int cols, int window_w, int window_h, bool isActive)
+    const SDL_Rect& spriteBorder,
+    int rows, int cols, bool isActive)
 {
     thisTableIsActive = isActive;
     BorderStuff bs{};
+    bs.spriteBorder = spriteBorder;
     bs.orientation = sbOrientation;
-    bs.window_w = window_w;
-    bs.window_h = window_h;
+    bs.window_w = WINDOW_W;
+    bs.window_h = WINDOW_H;
     tableBorder = new (std::nothrow) 
         EditorTableBorder(bs, rows, cols, SPRITE_SIZE);
     if (!tableBorder)

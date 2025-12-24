@@ -2,6 +2,7 @@
 
 #include "SpriteTable/consts.h"
 #include "logs.h"
+#include "video.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <vector>
@@ -47,10 +48,9 @@ class EditorTable
   public:
     EditorTable(
         ESpriteBorderOrientation sbOrientation, 
+        const SDL_Rect& spriteBorder,
         int rows, 
         int cols, 
-        int window_w, 
-        int window_h,
         bool isActive = true);
     ~EditorTable();
     EditorTable(const EditorTable&) = delete;

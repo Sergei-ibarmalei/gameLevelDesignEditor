@@ -62,8 +62,8 @@ void App::run()
     SpriteTable spriteTable(renderer_);
     if (!spriteTable.Status())
         return;
-    EditorTable editorTable(spriteBorderOrientation, 
-        12, 15, WINDOW_W, WINDOW_H, true);
+    EditorTable editorTable(spriteBorderOrientation, BORDER_INT,
+        12, 15,  true);
     if (!editorTable.Status())
     {
 #ifdef LOG
@@ -86,91 +86,81 @@ void App::run()
         {
             if (e.type == SDL_QUIT)
                 running_ = false;
-//            else if (e.type == SDL_KEYDOWN && !spriteTable.IsMoveProcess())
-//            {
-//                switch (e.key.keysym.sym)
-//                {
-//#ifdef POS_HORIZONTAL
-//                    case SDLK_RIGHT:
-//                    {
-//
-//                        spriteTable.MoveProcessStart();
-//
-//                        spriteTable.ChosenRectIsNotAtLeftEnd();
-//                        if (spriteTable.Cant_move_right())
-//                        {
-//                            spriteTable.ChosenRectIsAtRightEnd();
-//                            break;
-//                        }
-//                        spriteTable.SetDirectrion(EDirection::RIGHT);
-//                        spriteTable.CheckMoveLogic();
-//                        break;
-//                    }
-//                    case SDLK_LEFT:
-//                    {
-//                        spriteTable.MoveProcessStart();
-//                        spriteTable.ChosenRectIsNotAtRightEnd();
-//                        if (spriteTable.Cant_move_left())
-//                        {
-//                            spriteTable.ChosenRectIsAtLeftEnd();
-//                            break;
-//                        }
-//                        spriteTable.SetDirectrion(EDirection::LEFT);
-//                        spriteTable.CheckMoveLogic();
-//                        break;
-//                    }
-//                    default:
-//                    {
-//                    }
-//#else
-//                    case SDLK_DOWN:
-//                    {
-//                        spriteTable.MoveProcessStart();
-//                        spriteTable.ChosenRectIsNotAtTopEnd();
-//                        if (spriteTable.Cant_move_bottom())
-//                        {
-//                            spriteTable.ChosenRectIsAtBottomEnd();
-//                            break;
-//                        }
-//                        spriteTable.SetDirectrion(EDirection::DOWN);
-//                        spriteTable.CheckMoveLogic();
-//                        break;
-//                    }
-//                    case SDLK_UP:
-//                    {
-//                        spriteTable.MoveProcessStart();
-//                        spriteTable.ChosenRectIsNotAtBottomEnd();
-//                        if (spriteTable.Cant_move_top())
-//                        {
-//                            spriteTable.ChosenRectIsAtTopEnd();
-//                            break;
-//                        }
-//                        spriteTable.SetDirectrion(EDirection::UP);
-//                        spriteTable.CheckMoveLogic();
-//                        break;
-//                    }
-//                    default:
-//                    {
-//                    }
-//#endif
-//                }
-//            }
+            else if (e.type == SDL_KEYDOWN && !spriteTable.IsMoveProcess())
+            {
+                switch (e.key.keysym.sym)
+                {
+#ifdef POS_HORIZONTAL
+                    case SDLK_RIGHT:
+                    {
+
+                        spriteTable.MoveProcessStart();
+
+                        spriteTable.ChosenRectIsNotAtLeftEnd();
+                        if (spriteTable.Cant_move_right())
+                        {
+                            spriteTable.ChosenRectIsAtRightEnd();
+                            break;
+                        }
+                        spriteTable.SetDirectrion(EDirection::RIGHT);
+                        spriteTable.CheckMoveLogic();
+                        break;
+                    }
+                    case SDLK_LEFT:
+                    {
+                        spriteTable.MoveProcessStart();
+                        spriteTable.ChosenRectIsNotAtRightEnd();
+                        if (spriteTable.Cant_move_left())
+                        {
+                            spriteTable.ChosenRectIsAtLeftEnd();
+                            break;
+                        }
+                        spriteTable.SetDirectrion(EDirection::LEFT);
+                        spriteTable.CheckMoveLogic();
+                        break;
+                    }
+                    default:
+                    {
+                    }
+#else
+                    case SDLK_DOWN:
+                    {
+                        spriteTable.MoveProcessStart();
+                        spriteTable.ChosenRectIsNotAtTopEnd();
+                        if (spriteTable.Cant_move_bottom())
+                        {
+                            spriteTable.ChosenRectIsAtBottomEnd();
+                            break;
+                        }
+                        spriteTable.SetDirectrion(EDirection::DOWN);
+                        spriteTable.CheckMoveLogic();
+                        break;
+                    }
+                    case SDLK_UP:
+                    {
+                        spriteTable.MoveProcessStart();
+                        spriteTable.ChosenRectIsNotAtBottomEnd();
+                        if (spriteTable.Cant_move_top())
+                        {
+                            spriteTable.ChosenRectIsAtTopEnd();
+                            break;
+                        }
+                        spriteTable.SetDirectrion(EDirection::UP);
+                        spriteTable.CheckMoveLogic();
+                        break;
+                    }
+                    default:
+                    {
+                    }
+#endif
+                }
+            }
         }
 
         SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
         SDL_RenderClear(renderer_);
 
-        /*if (spriteTable.ChosenRectIsNotAtEnds())
-        {
-            if (spriteTable.ChosenRectCanMove())
-            {
-                spriteTable.MoveChosenRect(deltaTime);
-            }
-            else if (spriteTable.SpritesCanMove())
-            {
-                spriteTable.MoveSprites(deltaTime);
-            }
-        }*/
+
         spriteTable.MovingInSpriteTable(deltaTime);
 
         SDL_RenderSetClipRect(renderer_, &BORDER_INT);
