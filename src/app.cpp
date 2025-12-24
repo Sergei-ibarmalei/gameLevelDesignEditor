@@ -107,6 +107,35 @@ void App::run()
                 {
                 }
 #else
+                    case SDLK_DOWN:
+                {
+                    spriteTable.MoveProcessStart();
+                    spriteTable.White_is_not_at_top_end();
+                    if (spriteTable.Cant_move_bottom())
+                    {
+                        spriteTable.White_is_at_bottom_end();
+                        break;
+                    }
+                    spriteTable.SetDirectrion(EDirection::DOWN);
+                    spriteTable.CheckMoveLogic();
+                    break;
+                }
+                case SDLK_UP:
+                {
+                    spriteTable.MoveProcessStart();
+                    spriteTable.White_is_not_at_bottom_end();
+                    if (spriteTable.Cant_move_top())
+                    {
+                        spriteTable.White_is_at_top_end();
+                        break;
+                    }
+                    spriteTable.SetDirectrion(EDirection::UP);
+                    spriteTable.CheckMoveLogic();
+                    break;
+                }
+                default:
+                {
+                }
 #endif
                 }
             }
