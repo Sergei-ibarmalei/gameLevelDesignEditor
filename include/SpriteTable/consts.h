@@ -12,6 +12,12 @@ enum class EDirection
     UP = -1,
 };
 
+enum class ESpriteBorderOrientation
+{
+    HORIZONTAL,
+    VERTICAL,
+};
+
 constexpr size_t SPRITE_TABLE_COUNT_VISIBLES{5};
 constexpr size_t SPRITE_TABLE_COUNT_TOTAL{6};
 constexpr float SPRITE_SIZE{64.0f};

@@ -55,6 +55,8 @@ bool App::init(int width, int height)
 
 void App::run()
 {
+    ESpriteBorderOrientation spriteBorderOrientation =
+        ESpriteBorderOrientation::HORIZONTAL;
     SpriteTable spriteTable(renderer_);
     if (!spriteTable.Status())
         return;

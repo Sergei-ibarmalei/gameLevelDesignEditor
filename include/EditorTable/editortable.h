@@ -21,7 +21,8 @@ class EditorTableBorder
     SDL_Rect border{};
 
   public:
-    EditorTableBorder(int row = EDITOR_TABLEBORDER_MINROW,
+    EditorTableBorder(int window_w, int window_h, 
+                      int row = EDITOR_TABLEBORDER_MINROW,
                       int cols = EDITOR_TABLEBORDER_MINCOLS,
                       float sprite_size = SPRITE_SIZE);
 
@@ -34,6 +35,7 @@ class EditorTableBorder
 class EditorTable
 {
   private:
+      EditorTableBorder* tableBorder{nullptr};
   public:
     EditorTable(int window_w, int window_h);
 
