@@ -79,10 +79,11 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size,
     {
         SDL_Surface* tmpSurface = IMG_Load(filePath[i]);
 
+#ifdef LOG
         // Проверка
         SDL_Log("Amask: %08x, BytesPerPixe: %d", tmpSurface->format->Amask,
                 tmpSurface->format->BytesPerPixel);
-
+#endif
         if (!tmpSurface)
         {
 #ifdef LOG
@@ -111,8 +112,6 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size,
     totalWidth -= SPRITE_PADDING;
 
     // Создаем итоговую поверхность
-    // SDL_Surface* tmpAtlasSurface =
-    //    SDL_CreateRGBSurface(0, totalWidth, maxHeight, 32, 0, 0, 0, 0);
     SDL_Surface* tmpAtlasSurface = SDL_CreateRGBSurfaceWithFormat(
         0, totalWidth, maxHeight, 32, SDL_PIXELFORMAT_RGBA32);
 
