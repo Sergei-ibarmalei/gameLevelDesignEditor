@@ -9,6 +9,14 @@
 constexpr int EDITOR_TABLEBORDER_MINROW{1};
 constexpr int EDITOR_TABLEBORDER_MINCOLS{1};
 
+struct BorderStuff
+{
+    SDL_Rect spriteBorder;
+    ESpriteBorderOrientation orientation;
+    int window_w;
+    int window_h;
+};
+
 class EditorTableBorder
 {
   private:
@@ -21,8 +29,8 @@ class EditorTableBorder
     SDL_Rect border{};
 
   public:
-    EditorTableBorder(int window_w, int window_h, 
-                      int row = EDITOR_TABLEBORDER_MINROW,
+    EditorTableBorder(BorderStuff& bs, 
+                      int rows = EDITOR_TABLEBORDER_MINROW,
                       int cols = EDITOR_TABLEBORDER_MINCOLS,
                       float sprite_size = SPRITE_SIZE);
 
@@ -35,11 +43,14 @@ class EditorTableBorder
 class EditorTable
 {
   private:
+      bool init {true};
       EditorTableBorder* tableBorder{nullptr};
   public:
-    EditorTable(int window_w, int window_h);
+    EditorTable(ESpriteBorderOrientation sbOrientation,
+        int rows, int cols, int window_w, int window_h);
 
     EditorTable(const EditorTable&) = delete;
     EditorTable& operator=(const EditorTable&) = delete;
     EditorTable(EditorTable&&) = delete;
+    bool Status() const { return init; }
 };

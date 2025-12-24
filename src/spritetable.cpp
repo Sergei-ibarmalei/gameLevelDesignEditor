@@ -1,3 +1,4 @@
+#include <new>
 #include "SpriteTable/spritetable.h"
 
 const char* filePath[] = {"assets/one.png",
@@ -196,7 +197,15 @@ SpriteTable::~SpriteTable()
 
 bool SpriteTable::initSpriteTable(SDL_Renderer* r)
 {
-    atlas = new Atlas(r, SPRITE_TABLE_COUNT_TOTAL, filePath);
+    atlas = new (std::nothrow) Atlas(r, SPRITE_TABLE_COUNT_TOTAL, filePath);
+    if (!atlas)
+    {
+#ifdef LOG
+        std::cout << "Cannot allocate memory for atlas, abort.\n";
+#endif
+        return false;
+    }
+
     if (!atlas->Status())
     {
 #ifdef LOG
