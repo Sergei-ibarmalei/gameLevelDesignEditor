@@ -57,13 +57,18 @@ bool App::init(int width, int height)
 
 void App::run()
 {
+#ifdef POS_VERTICAL
     ESpriteBorderOrientation spriteBorderOrientation =
+        ESpriteBorderOrientation::VERTICAL;
+#else
+    ESpriteBorderOrientation spriteBorderOrientation = 
         ESpriteBorderOrientation::HORIZONTAL;
+#endif
     SpriteTable spriteTable(renderer_);
     if (!spriteTable.Status())
         return;
     EditorTable editorTable(spriteBorderOrientation, BORDER_INT,
-        12, 15,  true);
+        20, 29,  true);
     if (!editorTable.Status())
     {
 #ifdef LOG
@@ -160,15 +165,15 @@ void App::run()
         SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
         SDL_RenderClear(renderer_);
 
+        showEditorTableBorder(renderer_, editorTable.GetTableBorder());
+        //spriteTable.MovingInSpriteTable(deltaTime);
 
-        spriteTable.MovingInSpriteTable(deltaTime);
-
-        SDL_RenderSetClipRect(renderer_, &BORDER_INT);
-        showSimpleSpriteVector(
-            renderer_, spriteTable.AtlasTexture(), spriteTable.MechanicVectorSprite());
-        SDL_RenderSetClipRect(renderer_, nullptr);
-        showChosenRect(renderer_, spriteTable.GetChosenRect());
-        showBorder(renderer_);
+        //SDL_RenderSetClipRect(renderer_, &BORDER_INT);
+        //showSimpleSpriteVector(
+        //    renderer_, spriteTable.AtlasTexture(), spriteTable.MechanicVectorSprite());
+        //SDL_RenderSetClipRect(renderer_, nullptr);
+        //showChosenRect(renderer_, spriteTable.GetChosenRect());
+        //showBorder(renderer_);
 
         SDL_RenderPresent(renderer_);
     }
@@ -214,6 +219,6 @@ static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r)
 
 static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r)
 {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0xFF, 0xFF);
+    SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 0xFF);
     SDL_RenderDrawRect(renderer, &r);
 }

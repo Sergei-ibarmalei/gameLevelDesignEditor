@@ -9,6 +9,8 @@
 
 constexpr int EDITOR_TABLEBORDER_MINROW{1};
 constexpr int EDITOR_TABLEBORDER_MINCOLS{1};
+constexpr int EDITOR_TABLEBORDER_LEFTX {10};
+constexpr int EDITOR_TABLEBORDER_LEFTY{10};
 
 struct BorderStuff
 {
@@ -20,8 +22,8 @@ struct BorderStuff
 
 struct EditorTableBorder
 {
-    int leftX{10};
-    int leftY{10};
+    int leftX{EDITOR_TABLEBORDER_LEFTX};
+    int leftY{EDITOR_TABLEBORDER_LEFTY};
     int width{0};
     int height{0};
     bool init{true};
@@ -43,15 +45,15 @@ class EditorTable
   private:
     bool init{true};
     bool thisTableIsActive{false};
+    SDL_Point spriteTableStartPosition{0, 0};
     EditorTableBorder* tableBorder{nullptr};
 
   public:
-    EditorTable(
-        ESpriteBorderOrientation sbOrientation, 
-        const SDL_Rect& spriteBorder,
-        int rows, 
-        int cols, 
-        bool isActive = true);
+    EditorTable(ESpriteBorderOrientation sbOrientation,
+                const SDL_Rect& spriteBorder,
+                int rows,
+                int cols,
+                bool isActive = true);
     ~EditorTable();
     EditorTable(const EditorTable&) = delete;
     EditorTable& operator=(const EditorTable&) = delete;
@@ -63,4 +65,5 @@ class EditorTable
             return tableBorder->GetBorder();
         return SDL_Rect{};
     }
+    const SDL_Point& GetSpriteTableStartPosition() const { return spriteTableStartPosition; }
 };

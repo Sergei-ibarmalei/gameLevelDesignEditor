@@ -102,15 +102,7 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
                 tmpSurface->format->Amask,
                 tmpSurface->format->BytesPerPixel);
 #endif
-         //totalWidth += tmpSurface->w + SPRITE_PADDING;
-         //maxHeight = std::max(maxHeight, tmpSurface->h);
-         //destRect.x = static_cast<int>(i * tmpSurface->w + SPRITE_PADDING);
-         //destRect.w = tmpSurface->w;
-         //destRect.h = tmpSurface->h;
 
-         //sourceRects.emplace_back(destRect);
-         //surfacesFromImages[i] = tmpSurface;
-         //tmpSurface = nullptr;
 
         maxHeight = std::max(maxHeight, tmpSurface->h);
         destRect.x = destRectX;
@@ -125,7 +117,7 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
     }
 
     totalWidth = destRectX - SPRITE_PADDING;
-    //totalWidth -= SPRITE_PADDING;
+
 
     // Создаем итоговую поверхность
     SDL_Surface* tmpAtlasSurface =

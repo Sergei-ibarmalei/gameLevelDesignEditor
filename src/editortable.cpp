@@ -20,22 +20,28 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
         {
             width = static_cast<int>(cols * sprite_size);
             height = static_cast<int>(rows * sprite_size);
-            bool wrongWidth{width > bs.window_h};
+            bool wrongWidth{ (width + leftX) > bs.window_w};
             if (wrongWidth)
             {
 #ifdef LOG
+                std::cout << "Widnow sizes: " << bs.window_w << "x" << bs.window_h << "\n";
+                std::cout << "First calculated width: " << width << "\n";
+
                 std::cout << "Width of border exceeds window width, and was"
                           << " adjusted.\n ";
 #endif
-                while (wrongWidth && cols > EDITOR_TABLEBORDER_MINCOLS)
+                while (wrongWidth && (cols > EDITOR_TABLEBORDER_MINCOLS))
                 {
                     --cols;
                     width = static_cast<int>(cols * sprite_size);
-                    wrongWidth = width > bs.window_w;
+#ifdef LOG
+                    std::cout << "Adjusted width: " << width << "\n";
+#endif
+                    wrongWidth = (width + leftX)  > bs.window_w;
                 }
                 
             }
-            bool wrongHeight {(height + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.h) >
+            bool wrongHeight {(height + leftY + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.h) >
                              bs.window_h};
             if (wrongHeight)
             {
@@ -47,7 +53,10 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
                 {
                     --rows;
                     height = static_cast<int>(rows * sprite_size);
-                    wrongHeight = (height + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.h) >
+#ifdef LOG
+                    std::cout << "Adjusted height: " << height << "\n";
+#endif
+                    wrongHeight = (height + leftY + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.h) >
                                   bs.window_h;
                 }
             }
@@ -59,7 +68,7 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
         {
             width = static_cast<int>(cols * sprite_size);
             height = static_cast<int>(rows * sprite_size);
-            bool wrongWidth{(width + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.w) >
+            bool wrongWidth{(width + leftX + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.w) >
                             bs.window_w};
             if (wrongWidth)
             {
@@ -71,7 +80,7 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
                 {
                     --cols;
                     width = static_cast<int>(cols * sprite_size);
-                    wrongWidth = (width + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.w) >
+                    wrongWidth = (width + leftX + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.w) >
                                  bs.window_w;
                 }
             }

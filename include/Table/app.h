@@ -4,6 +4,7 @@
 #include <SDL_image.h>
 #include "SpriteTable/spritetable.h"
 #include "EditorTable/editortable.h"
+#include "position.h"
 
 class App
 {
