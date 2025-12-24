@@ -80,10 +80,10 @@ void App::run()
 
                     spriteTable.MoveProcessStart();
 
-                    spriteTable.White_is_not_at_left_end();
+                    spriteTable.ChosenRectIsNotAtLeftEnd();
                     if (spriteTable.Cant_move_right())
                     {
-                        spriteTable.White_is_at_right_end();
+                        spriteTable.ChosenRectIsAtRightEnd();
                         break;
                     }
                     spriteTable.SetDirectrion(EDirection::RIGHT);
@@ -93,10 +93,10 @@ void App::run()
                 case SDLK_LEFT:
                 {
                     spriteTable.MoveProcessStart();
-                    spriteTable.White_is_not_at_right_end();
+                    spriteTable.ChosenRectIsNotAtRightEnd();
                     if (spriteTable.Cant_move_left())
                     {
-                        spriteTable.White_is_at_left_end();
+                        spriteTable.ChosenRectIsAtLeftEnd();
                         break;
                     }
                     spriteTable.SetDirectrion(EDirection::LEFT);
@@ -110,10 +110,10 @@ void App::run()
                     case SDLK_DOWN:
                 {
                     spriteTable.MoveProcessStart();
-                    spriteTable.White_is_not_at_top_end();
+                    spriteTable.ChosenRectIsNotAtTopEnd();
                     if (spriteTable.Cant_move_bottom())
                     {
-                        spriteTable.White_is_at_bottom_end();
+                        spriteTable.ChosenRectIsAtBottomEnd();
                         break;
                     }
                     spriteTable.SetDirectrion(EDirection::DOWN);
@@ -123,10 +123,10 @@ void App::run()
                 case SDLK_UP:
                 {
                     spriteTable.MoveProcessStart();
-                    spriteTable.White_is_not_at_bottom_end();
+                    spriteTable.ChosenRectIsNotAtBottomEnd();
                     if (spriteTable.Cant_move_top())
                     {
-                        spriteTable.White_is_at_top_end();
+                        spriteTable.ChosenRectIsAtTopEnd();
                         break;
                     }
                     spriteTable.SetDirectrion(EDirection::UP);
@@ -144,11 +144,11 @@ void App::run()
         SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
         SDL_RenderClear(renderer_);
 
-        if (spriteTable.White_is_not_at_ends())
+        if (spriteTable.ChosenRectIsNotAtEnds())
         {
-            if (spriteTable.WhiteCanMove())
+            if (spriteTable.ChosenRectCanMove())
             {
-                spriteTable.MoveWhite(deltaTime);
+                spriteTable.MoveChosenRect(deltaTime);
             }
             else if (spriteTable.SpritesCanMove())
             {
@@ -201,6 +201,6 @@ static void showSimpleSpriteVector(SDL_Renderer* renderer, SDL_Texture* texture,
 
 static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r)
 {
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_SetRenderDrawColor(renderer, 0, 0xFF, 0, 0xFF);
     SDL_RenderDrawRectF(renderer, &r);
 }

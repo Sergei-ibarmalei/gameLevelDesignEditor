@@ -98,7 +98,6 @@ struct Logics
 struct Mechanic
 {
     Logics logic;
-    // ESpritesDirection dir = ESpritesDirection::RIGHT;
     EDirection dir = EDirection::RIGHT;
     int index{0};
     int sign{0};
@@ -172,11 +171,12 @@ class SpriteTable
     {
         return mechanic.chRect.transform.GetRect();
     }
+
     void CheckMoveLogic();         //-
-    void MoveWhite(float delta);   //-
+    void MoveChosenRect(float delta);   //-
     void MoveSprites(float delta); //-
 
-    bool WhiteCanMove() const //-
+    bool ChosenRectCanMove() const //-
     {
         return IsMoveProcess() && mechanic.logic.moves_white;
     }
@@ -184,7 +184,7 @@ class SpriteTable
     {
         return IsMoveProcess() && mechanic.logic.moves_sprites;
     }
-    bool White_is_not_at_ends() const //-
+    bool ChosenRectIsNotAtEnds() const //-
     {
 #ifdef POS_HORIZONTAL
         return !mechanic.logic.white_at_left_end &&
@@ -213,20 +213,21 @@ class SpriteTable
 #ifdef POS_HORIZONTAL
     bool Cant_move_right();         //-
     bool Cant_move_left();          //-
-    void White_is_not_at_left_end() //-
+    
+    void ChosenRectIsNotAtLeftEnd()
     {
         mechanic.logic.white_at_left_end = false;
     }
-    void White_is_not_at_right_end() //-
+    void ChosenRectIsNotAtRightEnd() //-
     {
         mechanic.logic.white_at_right_end = false;
     }
-    void White_is_at_right_end() //-
+    void ChosenRectIsAtRightEnd() //-
     {
         mechanic.logic.white_at_right_end = true;
         mechanic.logic.move_process = false;
     }
-    void White_is_at_left_end() //-
+    void ChosenRectIsAtLeftEnd() //-
     {
         mechanic.logic.white_at_left_end = true;
         mechanic.logic.move_process = false;
@@ -234,23 +235,25 @@ class SpriteTable
 #else
     bool Cant_move_bottom();
     bool Cant_move_top();
-    void White_is_not_at_top_end()
+    void ChosenRectIsNotAtTopEnd()
     {
         mechanic.logic.white_at_top_end = false;
     }
-    void White_is_not_at_bottom_end()
+    void ChosenRectIsNotAtBottomEnd()
     {
         mechanic.logic.white_at_bottom_end = false;
     }
-    void White_is_at_bottom_end()
+    void ChosenRectIsAtBottomEnd()
     {
         mechanic.logic.white_at_bottom_end = true;
         mechanic.logic.move_process = false;
     }
-    void White_is_at_top_end()
+    void ChosenRectIsAtTopEnd()
     {
         mechanic.logic.white_at_top_end = true;
         mechanic.logic.move_process = false;
     }
 #endif
 };
+
+

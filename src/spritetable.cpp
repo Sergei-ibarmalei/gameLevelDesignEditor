@@ -255,64 +255,9 @@ void SpriteTable::CheckMoveLogic() //-
 
 
 
-//void SpriteTable::MovingObject(float delta, EMovingObject obj)
-//{
-//    float currentPace = SPEED * delta;
-//    mechanic.fullPath += currentPace;
-//    bool move_complete{mechanic.fullPath >= SPRITESIZE_WITH_PADDING};
-//    mechanic.sign = static_cast<int>(mechanic.dir);
-//
-//    if (move_complete)
-//    {
-//        mechanic.fullPath = SPRITESIZE_WITH_PADDING;
-//        if (obj == EMovingObject::SPRITES)
-//        {
-//            for (auto& sprite : mechanic.vectorSprite)
-//            {
-//                sprite.transform.SetOffsetFromOrigin(
-//                    mechanic.sign * mechanic.fullPath);
-//            }
-//        }
-//        else if (obj == EMovingObject::WHITE_RECT)
-//        {
-//            mechanic.chRect.transform.SetOffsetFromOrigin(
-//                mechanic.sign * mechanic.fullPath);
-//        }
-//        mechanic.fullPath = 0.0f;
-//        if (obj == EMovingObject::SPRITES)
-//        {
-//            for (auto& sprite : mechanic.vectorSprite)
-//            {
-//                sprite.transform.SetOrigin();
-//            }
-//        }
-//        else if (obj == EMovingObject::WHITE_RECT)
-//        {
-//            mechanic.chRect.SetOrigin();
-//        }
-//        mechanic.logic.move_process = false;
-//    }
-//    else
-//    {
-//        if (obj == EMovingObject::SPRITES)
-//        {
-//            for (auto& sprite : mechanic.vectorSprite)
-//            {
-//                sprite.transform.SetOffsetFromOrigin(
-//                    mechanic.sign *
-//                    mechanic.fullPath); // здесь origin = 0, а должен быть равен
-//                                        // rect.x или rect.y
-//            }
-//        }
-//        else if (obj == EMovingObject::WHITE_RECT)
-//        {
-//            mechanic.chRect.transform.SetOffsetFromOrigin(
-//                mechanic.sign * mechanic.fullPath);
-//        }
-//    }   
-//}
 
-void SpriteTable::MoveWhite(float delta) //-
+
+void SpriteTable::MoveChosenRect(float delta) //-
 {
     float currentPace = SPEED * delta;
     mechanic.fullPath += currentPace;
@@ -357,6 +302,16 @@ void SpriteTable::MoveSprites(float delta) //-
             sprite.transform.SetOrigin();
         }
     }
+    else
+    {
+        for (auto& sprite : mechanic.vectorSprite)
+        {
+            sprite.transform.SetOffsetFromOrigin(mechanic.sign *
+                                                 mechanic.fullPath);
+        }
+    }
+
+    //}
 }
 
 #ifdef POS_HORIZONTAL

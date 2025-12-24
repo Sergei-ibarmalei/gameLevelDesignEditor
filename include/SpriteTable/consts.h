@@ -11,11 +11,8 @@ enum class EDirection
     DOWN = 1,
     UP = -1,
 };
-//enum class EMovingObject
-//{
-//    SPRITES,
-//    WHITE_RECT,
-//};
+
+
 
 constexpr size_t SPRITE_TABLE_COUNT_VISIBLES{5};
 constexpr size_t SPRITE_TABLE_COUNT_TOTAL{6};
