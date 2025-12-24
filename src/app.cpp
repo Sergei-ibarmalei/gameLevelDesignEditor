@@ -4,6 +4,7 @@
 static void showBorder(SDL_Renderer* renderer);
 static void showSimpleSpriteVector(SDL_Renderer* renderer, SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite);
+static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
 
 bool App::init(int width, int height)
 {
@@ -55,21 +56,107 @@ void App::run()
     SpriteTable spriteTable(renderer_);
     if (!spriteTable.Status())
         return;
+    SDL_Event e;
+    // auto logic = spriteTable.GetLogic();
+    lastTime = SDL_GetTicks();
 
     while (running_)
     {
-        SDL_Event e;
+        currentTime = SDL_GetTicks();
+        deltaTime = (currentTime - lastTime) / 1000.0f;
+        lastTime = currentTime;
+
         while (SDL_PollEvent(&e))
         {
             if (e.type == SDL_QUIT)
                 running_ = false;
+            else if (e.type == SDL_KEYDOWN && !spriteTable.GetMechanic().logic.move_process)
+            {
+                switch (e.key.keysym.sym)
+                {
+                case SDLK_RIGHT:
+                {
+                    //spriteTable.GetMechanic().logic.move_process = true;
+                    spriteTable.MoveProcessStart();
+                    //spriteTable.GetMechanic().logic.white_at_left_end = false;
+                    spriteTable.White_is_not_at_left_end();
+                    //if (spriteTable.GetMechanic().index == MIDDLE_INDEX &&
+                      //  spriteTable.GetMechanic().vectorSprite.back() ==
+                        //    XSPRITE_MIDDLE)
+                    if (spriteTable.Cant_move_right())
+                    {
+                        //spriteTable.GetMechanic().sign = 1;
+                        spriteTable.White_is_at_right_end();
+                        /*spriteTable.GetMechanic().logic.white_at_right_end =
+                            true;
+                        spriteTable.GetMechanic().logic.move_process = false;*/
+                        break;
+                    }
+                    spriteTable.SetDirectrion(EDirection::RIGHT);
+                    /*spriteTable.GetMechanic().sign = 1;
+                    spriteTable.GetMechanic().index +=
+                        spriteTable.GetMechanic().sign;*/
+                    spriteTable.CheckMoveLogic();
+                    break;
+                }
+                case SDLK_LEFT:
+                {   
+                    //spriteTable.GetMechanic().logic.move_process = true;
+                    spriteTable.MoveProcessStart();
+                    spriteTable.White_is_not_at_right_end();
+                    //spriteTable.GetMechanic().logic.white_at_right_end = false;
+                    //if (spriteTable.GetMechanic().index == 0 &&
+                     //   spriteTable.GetMechanic().vectorSprite.front() ==
+                      //      XSPRITE_FIRST)
+                    if (spriteTable.Cant_move_left())
+                    {
+                        spriteTable.White_is_at_left_end();
+                        /*spriteTable.GetMechanic().sign = 1;
+                        spriteTable.GetMechanic().logic.white_at_left_end =
+                            true;
+                        spriteTable.GetMechanic().logic.move_process = false;*/
+                        break;
+                    }
+                    spriteTable.SetDirectrion(EDirection::LEFT);
+                    /*spriteTable.GetMechanic().sign = -1;
+                    spriteTable.GetMechanic().index +=
+                        spriteTable.GetMechanic().sign;*/
+                    spriteTable.CheckMoveLogic();
+                    break;
+                }
+                default: {}
+                }
+ 
+            }
         }
+    
 
-        SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
-        SDL_RenderClear(renderer_);
-        SDL_RenderPresent(renderer_);
+    SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
+    SDL_RenderClear(renderer_);
+
+    if (spriteTable.White_is_not_at_ends())
+    {
+        if (spriteTable.WhiteCanMove())
+        {
+            spriteTable.MoveWhite(deltaTime);
+        }
+        else if (spriteTable.SpritesCanMove())
+        {
+            spriteTable.MoveSprites(deltaTime);
+        }
+    }
+
+    SDL_RenderSetClipRect(renderer_, &BORDER_INT);
+    showSimpleSpriteVector(renderer_, spriteTable.AtlasTexture(),
+                           spriteTable.MechanicVectorSprite());
+    SDL_RenderSetClipRect(renderer_, nullptr);
+    showChosenRect(renderer_, spriteTable.GetChosenRect());
+    showBorder(renderer_);
+
+    SDL_RenderPresent(renderer_);
     }
 }
+
 
 void App::shutdown()
 {
@@ -101,4 +188,10 @@ static void showSimpleSpriteVector(SDL_Renderer* renderer, SDL_Texture* texture,
         SDL_RenderCopyF(renderer, texture, &sprite.SourceRect(),
                         &sprite.transform.GetRect());
     }
+}
+
+static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r)
+{
+    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderDrawRectF(renderer, &r);
 }

@@ -4,10 +4,15 @@
 #include "../video.h"
 #include <SDL.h>
 
-enum class ESpritesDirection
+enum class EDirection
 {
     RIGHT = 1,
     LEFT = -1,
+};
+enum class EMovingObject
+{
+    SPRITES,
+    WHITE_RECT,
 };
 
 constexpr size_t SPRITE_TABLE_COUNT_VISIBLES{5};

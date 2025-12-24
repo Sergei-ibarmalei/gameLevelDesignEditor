@@ -34,12 +34,12 @@ public:
     Sprite(const SDL_Rect& rectFromAtlas, float x, float y);
 
 #ifdef POS_HORIZONTAL
-    bool operator==(float other_x)
+    bool operator==(const float other_x) 
     {
         return std::abs(transform.rect.x - other_x) < 0.01f;
     }
 #else
-    bool operator==(float other_y)
+    bool operator==(const float other_y) const
     {
         return std::abs(transform.rect.y - other_y) < 0.01f;
     }
@@ -76,14 +76,20 @@ struct Logics
     bool move_process{ false };
     bool moves_white{ true };
     bool moves_sprites{ false };
+#ifdef POS_HORIZONTAL
     bool white_at_right_end{ false };
     bool white_at_left_end{ false };
+#else
+    bool white_at_top_end{ false };
+    bool white_at_bottom_end{false};
+#endif
 };
 
 struct Mechanic
 {
     Logics logic;
-    ESpritesDirection dir = ESpritesDirection::RIGHT;
+    //ESpritesDirection dir = ESpritesDirection::RIGHT;
+    EDirection dir = EDirection::RIGHT;
     int index{ 0 };
     int sign{ 0 };
     float fullPath{ 0.0f };
@@ -129,9 +135,109 @@ public:
     SpriteTable(SpriteTable&&) = delete;
     SpriteTable& operator=(const SpriteTable&) = delete;
     SpriteTable& operator=(SpriteTable&&) = delete;
+    Mechanic& GetMechanic()
+    {
+        return mechanic;
+    }
     bool Status() const {return init;}
     const std::vector<Sprite>& MechanicVectorSprite() const {return mechanic.vectorSprite;}
     SDL_Texture* AtlasTexture() const {return atlas->GetAtlasTexture();}
+    Logics& GetLogic() {return mechanic.logic;}
+    const SDL_FRect& GetChosenRect() const
+    {
+        return mechanic.chRect.transform.GetRect();
+    }
+    void CheckMoveLogic();
+    void MoveWhite(float delta);
+    void MoveSprites(float delta);
+
+    bool WhiteCanMove() const
+    {
+        return IsMoveProcess() && mechanic.logic.moves_white;
+    }
+    bool SpritesCanMove() const
+    {
+        return IsMoveProcess() && mechanic.logic.moves_sprites;
+    }
+    bool White_is_not_at_ends() const
+    {
+#ifdef POS_HORIZONTAL
+        return !mechanic.logic.white_at_left_end &&
+               !mechanic.logic.white_at_right_end;
+#else
+        return !mechanic.logic.white_at_top_end &&
+               !mechanic.logic.white_at_bottom_end;
+#endif 
+    }
+
+    bool IsMoveProcess() const
+    {
+        return mechanic.logic.move_process;
+    }
+    void MoveProcessStop()
+    {
+        mechanic.logic.move_process = false;
+    }
+    void MoveProcessStart()
+    {
+        mechanic.logic.move_process = true;
+    }
+    /*void SetSign(int sign)
+    {
+        mechanic.sign = sign;
+    }   
+    void ChangeIndex()
+    {
+        mechanic.index += mechanic.sign;
+    } */
+    void SetDirectrion(EDirection dir)
+    {
+        mechanic.sign = static_cast<int>(dir);
+        mechanic.index += mechanic.sign;
+    }
+#ifdef POS_HORIZONTAL
+    bool Cant_move_right();
+    bool Cant_move_left();
+    void White_is_not_at_left_end()
+    {
+        mechanic.logic.white_at_left_end = false;
+    }
+    void White_is_not_at_right_end()
+    {
+        mechanic.logic.white_at_right_end = false;
+    }
+    void White_is_at_right_end()
+    {
+        mechanic.logic.white_at_right_end = true;
+        mechanic.logic.move_process = false;
+    }
+    void White_is_at_left_end()
+    {
+        mechanic.logic.white_at_left_end = true;
+        mechanic.logic.move_process = false;
+    }   
+#else
+    bool Cant_move_bottom();
+    bool Cant_move_top();
+    void White_is_not_at_top_end()
+    {
+        mechanic.logic.white_at_top_end = false;
+    }
+    void White_is_not_at_bottom_end()
+    {
+        mechanic.logic.white_at_bottom_end = false;
+    }
+    void White_is_at_bottom_end()
+    {
+        mechanic.logic.white_at_bottom_end = true;
+        mechanic.logic.move_process = false;
+    }
+    void White_is_at_top_end()
+    {
+        mechanic.logic.white_at_top_end = true;
+        mechanic.logic.move_process = false;
+    }
+#endif
 
 };
 
