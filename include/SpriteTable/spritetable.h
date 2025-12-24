@@ -13,28 +13,13 @@ struct Transform
     float origin{0.0f};
 
 #ifdef POS_HORIZONTAL
-    void SetOffsetFromOrigin(float path)
-    {
-        rect.x = origin + path;
-    }
-    void SetOrigin()
-    {
-        origin = rect.x;
-    }
+    void SetOffsetFromOrigin(float path) { rect.x = origin + path; }
+    void SetOrigin() { origin = rect.x; }
 #else
-    void SetOffsetFromOrigin(float path)
-    {
-        rect.y = origin + path;
-    }
-    void SetOrigin()
-    {
-        origin = rect.y;
-    }
+    void SetOffsetFromOrigin(float path) { rect.y = origin + path; }
+    void SetOrigin() { origin = rect.y; }
 #endif
-    const SDL_FRect& GetRect() const
-    {
-        return rect;
-    }
+    const SDL_FRect& GetRect() const { return rect; }
 };
 
 class Sprite
@@ -55,10 +40,7 @@ class Sprite
         return std::abs(transform.rect.y - other_y) < 0.01f;
     }
 #endif
-    const SDL_Rect& SourceRect() const
-    {
-        return sourcerect;
-    }
+    const SDL_Rect& SourceRect() const { return sourcerect; }
 };
 
 class ChosenRect
@@ -68,17 +50,15 @@ class ChosenRect
     ChosenRect() = default;
     void Init(const SDL_FRect& target)
     {
-        transform.rect = {
-            target.x - CHOSENRECT_PADDING, target.y - CHOSENRECT_PADDING,
-            target.w + 2 * CHOSENRECT_PADDING, target.h + 2 * CHOSENRECT_PADDING
+        transform.rect = {target.x - CHOSENRECT_PADDING,
+                          target.y - CHOSENRECT_PADDING,
+                          target.w + 2 * CHOSENRECT_PADDING,
+                          target.h + 2 * CHOSENRECT_PADDING
 
         };
         transform.SetOrigin();
     }
-    void SetOrigin()
-    {
-        transform.SetOrigin();
-    }
+    void SetOrigin() { transform.SetOrigin(); }
 };
 
 struct Logics
@@ -112,8 +92,7 @@ class Atlas
     bool init{true};
     std::vector<SDL_Rect> sourceRects;
     SDL_Texture* atlasTexture{nullptr};
-    [[nodiscard]] bool MakeAtlas(SDL_Renderer* r, size_t size,
-                                 const char** filePath);
+    [[nodiscard]] bool MakeAtlas(SDL_Renderer* r, size_t size, const char** filePath);
 
   public:
     Atlas(SDL_Renderer* r, size_t s, const char** filePath);
@@ -123,18 +102,9 @@ class Atlas
     Atlas& operator=(Atlas&&) = delete;
     Atlas& operator=(const Atlas&) = delete;
 
-    SDL_Texture* GetAtlasTexture() const
-    {
-        return atlasTexture;
-    }
-    const std::vector<SDL_Rect>& GetSourceRects() const
-    {
-        return sourceRects;
-    }
-    bool Status() const
-    {
-        return init;
-    }
+    SDL_Texture* GetAtlasTexture() const { return atlasTexture; }
+    const std::vector<SDL_Rect>& GetSourceRects() const { return sourceRects; }
+    bool Status() const { return init; }
 };
 
 class SpriteTable
@@ -154,27 +124,15 @@ class SpriteTable
     SpriteTable& operator=(const SpriteTable&) = delete;
     SpriteTable& operator=(SpriteTable&&) = delete;
 
-    bool Status() const
-    {
-        return init;
-    }
-    const std::vector<Sprite>& MechanicVectorSprite() const
-    {
-        return mechanic.vectorSprite;
-    }
-    SDL_Texture* AtlasTexture() const
-    {
-        return atlas->GetAtlasTexture();
-    }
+    bool Status() const { return init; }
+    const std::vector<Sprite>& MechanicVectorSprite() const { return mechanic.vectorSprite; }
+    SDL_Texture* AtlasTexture() const { return atlas->GetAtlasTexture(); }
 
-    const SDL_FRect& GetChosenRect() const
-    {
-        return mechanic.chRect.transform.GetRect();
-    }
+    const SDL_FRect& GetChosenRect() const { return mechanic.chRect.transform.GetRect(); }
 
-    void CheckMoveLogic();         //-
-    void MoveChosenRect(float delta);   //-
-    void MoveSprites(float delta); //-
+    void CheckMoveLogic();            //-
+    void MoveChosenRect(float delta); //-
+    void MoveSprites(float delta);    //-
 
     bool ChosenRectCanMove() const //-
     {
@@ -187,11 +145,9 @@ class SpriteTable
     bool ChosenRectIsNotAtEnds() const //-
     {
 #ifdef POS_HORIZONTAL
-        return !mechanic.logic.white_at_left_end &&
-               !mechanic.logic.white_at_right_end;
+        return !mechanic.logic.white_at_left_end && !mechanic.logic.white_at_right_end;
 #else
-        return !mechanic.logic.white_at_top_end &&
-               !mechanic.logic.white_at_bottom_end;
+        return !mechanic.logic.white_at_top_end && !mechanic.logic.white_at_bottom_end;
 #endif
     }
 
@@ -211,13 +167,10 @@ class SpriteTable
         mechanic.index += mechanic.sign;
     }
 #ifdef POS_HORIZONTAL
-    bool Cant_move_right();         //-
-    bool Cant_move_left();          //-
-    
-    void ChosenRectIsNotAtLeftEnd()
-    {
-        mechanic.logic.white_at_left_end = false;
-    }
+    bool Cant_move_right(); //-
+    bool Cant_move_left();  //-
+
+    void ChosenRectIsNotAtLeftEnd() { mechanic.logic.white_at_left_end = false; }
     void ChosenRectIsNotAtRightEnd() //-
     {
         mechanic.logic.white_at_right_end = false;
@@ -235,14 +188,8 @@ class SpriteTable
 #else
     bool Cant_move_bottom();
     bool Cant_move_top();
-    void ChosenRectIsNotAtTopEnd()
-    {
-        mechanic.logic.white_at_top_end = false;
-    }
-    void ChosenRectIsNotAtBottomEnd()
-    {
-        mechanic.logic.white_at_bottom_end = false;
-    }
+    void ChosenRectIsNotAtTopEnd() { mechanic.logic.white_at_top_end = false; }
+    void ChosenRectIsNotAtBottomEnd() { mechanic.logic.white_at_bottom_end = false; }
     void ChosenRectIsAtBottomEnd()
     {
         mechanic.logic.white_at_bottom_end = true;
@@ -255,5 +202,3 @@ class SpriteTable
     }
 #endif
 };
-
-

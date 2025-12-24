@@ -12,8 +12,6 @@ enum class EDirection
     UP = -1,
 };
 
-
-
 constexpr size_t SPRITE_TABLE_COUNT_VISIBLES{5};
 constexpr size_t SPRITE_TABLE_COUNT_TOTAL{6};
 constexpr float SPRITE_SIZE{64.0f};
@@ -48,6 +46,7 @@ constexpr float XSPRITE_MIDDLE{BORDER.x + (2 * SPRITE_SIZE) + (3 * PADDING)};
 constexpr float YSPRITE_FIRST{BORDER.y + PADDING};
 constexpr float YSPRITE_MIDDLE{BORDER.y + (2 * SPRITE_SIZE) + (3 * PADDING)};
 
-constexpr SDL_Rect BORDER_INT{
-    static_cast<int>(BORDER_LEFTX), static_cast<int>(BORDER_LEFTY),
-    static_cast<int>(BORDER_W), static_cast<int>(BORDER_H)};
+constexpr SDL_Rect BORDER_INT{static_cast<int>(BORDER_LEFTX),
+                              static_cast<int>(BORDER_LEFTY),
+                              static_cast<int>(BORDER_W),
+                              static_cast<int>(BORDER_H)};

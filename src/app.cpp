@@ -2,7 +2,8 @@
 #include <iostream>
 
 static void showBorder(SDL_Renderer* renderer);
-static void showSimpleSpriteVector(SDL_Renderer* renderer, SDL_Texture* texture,
+static void showSimpleSpriteVector(SDL_Renderer* renderer,
+                                   SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite);
 static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
 
@@ -22,9 +23,8 @@ bool App::init(int width, int height)
         return false;
     }
 
-    window_ = SDL_CreateWindow("Table", SDL_WINDOWPOS_CENTERED,
-                               SDL_WINDOWPOS_CENTERED, width, height,
-                               SDL_WINDOW_SHOWN);
+    window_ = SDL_CreateWindow(
+        "Table", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
 
     if (!window_)
     {
@@ -34,12 +34,11 @@ bool App::init(int width, int height)
         return false;
     }
 
-    renderer_ = SDL_CreateRenderer(
-        window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    renderer_ =
+        SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!renderer_)
     {
-        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError()
-                  << std::endl;
+        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         SDL_DestroyWindow(window_);
         window_ = nullptr;
         IMG_Quit();
@@ -78,67 +77,67 @@ void App::run()
                 switch (e.key.keysym.sym)
                 {
 #ifdef POS_HORIZONTAL
-                case SDLK_RIGHT:
-                {
-
-                    spriteTable.MoveProcessStart();
-
-                    spriteTable.ChosenRectIsNotAtLeftEnd();
-                    if (spriteTable.Cant_move_right())
+                    case SDLK_RIGHT:
                     {
-                        spriteTable.ChosenRectIsAtRightEnd();
+
+                        spriteTable.MoveProcessStart();
+
+                        spriteTable.ChosenRectIsNotAtLeftEnd();
+                        if (spriteTable.Cant_move_right())
+                        {
+                            spriteTable.ChosenRectIsAtRightEnd();
+                            break;
+                        }
+                        spriteTable.SetDirectrion(EDirection::RIGHT);
+                        spriteTable.CheckMoveLogic();
                         break;
                     }
-                    spriteTable.SetDirectrion(EDirection::RIGHT);
-                    spriteTable.CheckMoveLogic();
-                    break;
-                }
-                case SDLK_LEFT:
-                {
-                    spriteTable.MoveProcessStart();
-                    spriteTable.ChosenRectIsNotAtRightEnd();
-                    if (spriteTable.Cant_move_left())
+                    case SDLK_LEFT:
                     {
-                        spriteTable.ChosenRectIsAtLeftEnd();
+                        spriteTable.MoveProcessStart();
+                        spriteTable.ChosenRectIsNotAtRightEnd();
+                        if (spriteTable.Cant_move_left())
+                        {
+                            spriteTable.ChosenRectIsAtLeftEnd();
+                            break;
+                        }
+                        spriteTable.SetDirectrion(EDirection::LEFT);
+                        spriteTable.CheckMoveLogic();
                         break;
                     }
-                    spriteTable.SetDirectrion(EDirection::LEFT);
-                    spriteTable.CheckMoveLogic();
-                    break;
-                }
-                default:
-                {
-                }
+                    default:
+                    {
+                    }
 #else
                     case SDLK_DOWN:
-                {
-                    spriteTable.MoveProcessStart();
-                    spriteTable.ChosenRectIsNotAtTopEnd();
-                    if (spriteTable.Cant_move_bottom())
                     {
-                        spriteTable.ChosenRectIsAtBottomEnd();
+                        spriteTable.MoveProcessStart();
+                        spriteTable.ChosenRectIsNotAtTopEnd();
+                        if (spriteTable.Cant_move_bottom())
+                        {
+                            spriteTable.ChosenRectIsAtBottomEnd();
+                            break;
+                        }
+                        spriteTable.SetDirectrion(EDirection::DOWN);
+                        spriteTable.CheckMoveLogic();
                         break;
                     }
-                    spriteTable.SetDirectrion(EDirection::DOWN);
-                    spriteTable.CheckMoveLogic();
-                    break;
-                }
-                case SDLK_UP:
-                {
-                    spriteTable.MoveProcessStart();
-                    spriteTable.ChosenRectIsNotAtBottomEnd();
-                    if (spriteTable.Cant_move_top())
+                    case SDLK_UP:
                     {
-                        spriteTable.ChosenRectIsAtTopEnd();
+                        spriteTable.MoveProcessStart();
+                        spriteTable.ChosenRectIsNotAtBottomEnd();
+                        if (spriteTable.Cant_move_top())
+                        {
+                            spriteTable.ChosenRectIsAtTopEnd();
+                            break;
+                        }
+                        spriteTable.SetDirectrion(EDirection::UP);
+                        spriteTable.CheckMoveLogic();
                         break;
                     }
-                    spriteTable.SetDirectrion(EDirection::UP);
-                    spriteTable.CheckMoveLogic();
-                    break;
-                }
-                default:
-                {
-                }
+                    default:
+                    {
+                    }
 #endif
                 }
             }
@@ -160,8 +159,8 @@ void App::run()
         }
 
         SDL_RenderSetClipRect(renderer_, &BORDER_INT);
-        showSimpleSpriteVector(renderer_, spriteTable.AtlasTexture(),
-                               spriteTable.MechanicVectorSprite());
+        showSimpleSpriteVector(
+            renderer_, spriteTable.AtlasTexture(), spriteTable.MechanicVectorSprite());
         SDL_RenderSetClipRect(renderer_, nullptr);
         showChosenRect(renderer_, spriteTable.GetChosenRect());
         showBorder(renderer_);
@@ -192,13 +191,13 @@ static void showBorder(SDL_Renderer* renderer)
     SDL_RenderDrawRect(renderer, &BORDER_INT);
 }
 
-static void showSimpleSpriteVector(SDL_Renderer* renderer, SDL_Texture* texture,
+static void showSimpleSpriteVector(SDL_Renderer* renderer,
+                                   SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite)
 {
     for (auto& sprite : vectorSprite)
     {
-        SDL_RenderCopyF(renderer, texture, &sprite.SourceRect(),
-                        &sprite.transform.GetRect());
+        SDL_RenderCopyF(renderer, texture, &sprite.SourceRect(), &sprite.transform.GetRect());
     }
 }
 
