@@ -116,6 +116,25 @@ class SpriteTable
     Mechanic mechanic;
     Atlas* atlas{nullptr};
 
+    bool chosenRectIsNotAtEnds() const //-
+    {
+#ifdef POS_HORIZONTAL
+        return !mechanic.logic.white_at_left_end && !mechanic.logic.white_at_right_end;
+#else
+        return !mechanic.logic.white_at_top_end && !mechanic.logic.white_at_bottom_end;
+#endif
+    }
+    bool chosenRectCanMove() const //-
+    {
+        return IsMoveProcess() && mechanic.logic.moves_white;
+    }
+    void moveChosenRect(float delta); //-
+    void moveSprites(float delta);    //-
+    bool spritesCanMove() const       //-
+    {
+        return IsMoveProcess() && mechanic.logic.moves_sprites;
+    }
+
   public:
     SpriteTable(SDL_Renderer* r);
     ~SpriteTable();
@@ -129,27 +148,8 @@ class SpriteTable
     SDL_Texture* AtlasTexture() const { return atlas->GetAtlasTexture(); }
 
     const SDL_FRect& GetChosenRect() const { return mechanic.chRect.transform.GetRect(); }
-
-    void CheckMoveLogic();            //-
-    void MoveChosenRect(float delta); //-
-    void MoveSprites(float delta);    //-
-
-    bool ChosenRectCanMove() const //-
-    {
-        return IsMoveProcess() && mechanic.logic.moves_white;
-    }
-    bool SpritesCanMove() const //-
-    {
-        return IsMoveProcess() && mechanic.logic.moves_sprites;
-    }
-    bool ChosenRectIsNotAtEnds() const //-
-    {
-#ifdef POS_HORIZONTAL
-        return !mechanic.logic.white_at_left_end && !mechanic.logic.white_at_right_end;
-#else
-        return !mechanic.logic.white_at_top_end && !mechanic.logic.white_at_bottom_end;
-#endif
-    }
+    void MovingInSpriteTable(float deltaTime);
+    void CheckMoveLogic(); //-
 
     bool IsMoveProcess() const //-
     {

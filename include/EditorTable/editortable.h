@@ -17,9 +17,8 @@ struct BorderStuff
     int window_h;
 };
 
-class EditorTableBorder
+struct EditorTableBorder
 {
-  private:
     int leftX{10};
     int leftY{10};
     int width{0};
@@ -28,12 +27,10 @@ class EditorTableBorder
     bool active{false};
     SDL_Rect border{};
 
-  public:
-    EditorTableBorder(BorderStuff& bs, 
+    EditorTableBorder(BorderStuff& bs,
                       int rows = EDITOR_TABLEBORDER_MINROW,
                       int cols = EDITOR_TABLEBORDER_MINCOLS,
                       float sprite_size = SPRITE_SIZE);
-
     bool Status() const { return init; }
     bool IsActive() const { return active; }
     void SetActive(bool a) { active = a; }
@@ -43,14 +40,27 @@ class EditorTableBorder
 class EditorTable
 {
   private:
-      bool init {true};
-      EditorTableBorder* tableBorder{nullptr};
-  public:
-    EditorTable(ESpriteBorderOrientation sbOrientation,
-        int rows, int cols, int window_w, int window_h);
+    bool init{true};
+    bool thisTableIsActive{false};
+    EditorTableBorder* tableBorder{nullptr};
 
+  public:
+    EditorTable(
+        ESpriteBorderOrientation sbOrientation, 
+        int rows, 
+        int cols, 
+        int window_w, 
+        int window_h,
+        bool isActive = true);
+    ~EditorTable();
     EditorTable(const EditorTable&) = delete;
     EditorTable& operator=(const EditorTable&) = delete;
     EditorTable(EditorTable&&) = delete;
     bool Status() const { return init; }
+    SDL_Rect GetTableBorder() const
+    {
+        if (tableBorder)
+            return tableBorder->GetBorder();
+        return SDL_Rect{};
+    }
 };

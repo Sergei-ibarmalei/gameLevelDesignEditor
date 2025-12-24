@@ -292,7 +292,7 @@ void SpriteTable::CheckMoveLogic() //-
     }
 }
 
-void SpriteTable::MoveChosenRect(float delta) //-
+void SpriteTable::moveChosenRect(float delta) //-
 {
     float currentPace = SPEED * delta;
     mechanic.fullPath += currentPace;
@@ -312,7 +312,7 @@ void SpriteTable::MoveChosenRect(float delta) //-
     }
 }
 
-void SpriteTable::MoveSprites(float delta) //-
+void SpriteTable::moveSprites(float delta) //-
 {
     float currentPace = SPEED * delta;
     mechanic.fullPath += currentPace;
@@ -374,3 +374,18 @@ bool SpriteTable::Cant_move_bottom()
     return white_at_the_middle && srpites_at_bottom_end;
 }
 #endif
+
+void SpriteTable::MovingInSpriteTable(float deltaTime)
+{
+    if (chosenRectIsNotAtEnds())
+    {
+        if (chosenRectCanMove())
+        {
+            moveChosenRect(deltaTime);
+        }
+        else if (spritesCanMove())
+        {
+            moveSprites(deltaTime);
+        }
+    }
+}

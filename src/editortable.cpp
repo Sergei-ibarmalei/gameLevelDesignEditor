@@ -99,8 +99,9 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
 }
 
 EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
-    int rows, int cols, int window_w, int window_h)
+    int rows, int cols, int window_w, int window_h, bool isActive)
 {
+    thisTableIsActive = isActive;
     BorderStuff bs{};
     bs.orientation = sbOrientation;
     bs.window_w = window_w;
@@ -115,7 +116,21 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         init = false;
         return;
     }
+    if (!tableBorder->Status())
+    {
+#ifdef LOG
+        std::cout << "Cannot initiate EditorTableBorder, abort.\n";
+#endif
+        init = false;
+        return;
+    }
 
 
 
+}
+
+EditorTable::~EditorTable()
+{
+    delete tableBorder;
+    tableBorder = nullptr;
 }

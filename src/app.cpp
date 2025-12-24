@@ -6,6 +6,8 @@ static void showSimpleSpriteVector(SDL_Renderer* renderer,
                                    SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite);
 static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
+static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r);
+
 
 bool App::init(int width, int height)
 {
@@ -60,6 +62,16 @@ void App::run()
     SpriteTable spriteTable(renderer_);
     if (!spriteTable.Status())
         return;
+    EditorTable editorTable(spriteBorderOrientation, 
+        12, 15, WINDOW_W, WINDOW_H, true);
+    if (!editorTable.Status())
+    {
+#ifdef LOG
+        std::cout << "Cannot initiate Editor Table, abort.\n";
+#endif
+        return;
+    }
+
     SDL_Event e;
 
     lastTime = SDL_GetTicks();
@@ -74,81 +86,81 @@ void App::run()
         {
             if (e.type == SDL_QUIT)
                 running_ = false;
-            else if (e.type == SDL_KEYDOWN && !spriteTable.IsMoveProcess())
-            {
-                switch (e.key.keysym.sym)
-                {
-#ifdef POS_HORIZONTAL
-                    case SDLK_RIGHT:
-                    {
-
-                        spriteTable.MoveProcessStart();
-
-                        spriteTable.ChosenRectIsNotAtLeftEnd();
-                        if (spriteTable.Cant_move_right())
-                        {
-                            spriteTable.ChosenRectIsAtRightEnd();
-                            break;
-                        }
-                        spriteTable.SetDirectrion(EDirection::RIGHT);
-                        spriteTable.CheckMoveLogic();
-                        break;
-                    }
-                    case SDLK_LEFT:
-                    {
-                        spriteTable.MoveProcessStart();
-                        spriteTable.ChosenRectIsNotAtRightEnd();
-                        if (spriteTable.Cant_move_left())
-                        {
-                            spriteTable.ChosenRectIsAtLeftEnd();
-                            break;
-                        }
-                        spriteTable.SetDirectrion(EDirection::LEFT);
-                        spriteTable.CheckMoveLogic();
-                        break;
-                    }
-                    default:
-                    {
-                    }
-#else
-                    case SDLK_DOWN:
-                    {
-                        spriteTable.MoveProcessStart();
-                        spriteTable.ChosenRectIsNotAtTopEnd();
-                        if (spriteTable.Cant_move_bottom())
-                        {
-                            spriteTable.ChosenRectIsAtBottomEnd();
-                            break;
-                        }
-                        spriteTable.SetDirectrion(EDirection::DOWN);
-                        spriteTable.CheckMoveLogic();
-                        break;
-                    }
-                    case SDLK_UP:
-                    {
-                        spriteTable.MoveProcessStart();
-                        spriteTable.ChosenRectIsNotAtBottomEnd();
-                        if (spriteTable.Cant_move_top())
-                        {
-                            spriteTable.ChosenRectIsAtTopEnd();
-                            break;
-                        }
-                        spriteTable.SetDirectrion(EDirection::UP);
-                        spriteTable.CheckMoveLogic();
-                        break;
-                    }
-                    default:
-                    {
-                    }
-#endif
-                }
-            }
+//            else if (e.type == SDL_KEYDOWN && !spriteTable.IsMoveProcess())
+//            {
+//                switch (e.key.keysym.sym)
+//                {
+//#ifdef POS_HORIZONTAL
+//                    case SDLK_RIGHT:
+//                    {
+//
+//                        spriteTable.MoveProcessStart();
+//
+//                        spriteTable.ChosenRectIsNotAtLeftEnd();
+//                        if (spriteTable.Cant_move_right())
+//                        {
+//                            spriteTable.ChosenRectIsAtRightEnd();
+//                            break;
+//                        }
+//                        spriteTable.SetDirectrion(EDirection::RIGHT);
+//                        spriteTable.CheckMoveLogic();
+//                        break;
+//                    }
+//                    case SDLK_LEFT:
+//                    {
+//                        spriteTable.MoveProcessStart();
+//                        spriteTable.ChosenRectIsNotAtRightEnd();
+//                        if (spriteTable.Cant_move_left())
+//                        {
+//                            spriteTable.ChosenRectIsAtLeftEnd();
+//                            break;
+//                        }
+//                        spriteTable.SetDirectrion(EDirection::LEFT);
+//                        spriteTable.CheckMoveLogic();
+//                        break;
+//                    }
+//                    default:
+//                    {
+//                    }
+//#else
+//                    case SDLK_DOWN:
+//                    {
+//                        spriteTable.MoveProcessStart();
+//                        spriteTable.ChosenRectIsNotAtTopEnd();
+//                        if (spriteTable.Cant_move_bottom())
+//                        {
+//                            spriteTable.ChosenRectIsAtBottomEnd();
+//                            break;
+//                        }
+//                        spriteTable.SetDirectrion(EDirection::DOWN);
+//                        spriteTable.CheckMoveLogic();
+//                        break;
+//                    }
+//                    case SDLK_UP:
+//                    {
+//                        spriteTable.MoveProcessStart();
+//                        spriteTable.ChosenRectIsNotAtBottomEnd();
+//                        if (spriteTable.Cant_move_top())
+//                        {
+//                            spriteTable.ChosenRectIsAtTopEnd();
+//                            break;
+//                        }
+//                        spriteTable.SetDirectrion(EDirection::UP);
+//                        spriteTable.CheckMoveLogic();
+//                        break;
+//                    }
+//                    default:
+//                    {
+//                    }
+//#endif
+//                }
+//            }
         }
 
         SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
         SDL_RenderClear(renderer_);
 
-        if (spriteTable.ChosenRectIsNotAtEnds())
+        /*if (spriteTable.ChosenRectIsNotAtEnds())
         {
             if (spriteTable.ChosenRectCanMove())
             {
@@ -158,7 +170,8 @@ void App::run()
             {
                 spriteTable.MoveSprites(deltaTime);
             }
-        }
+        }*/
+        spriteTable.MovingInSpriteTable(deltaTime);
 
         SDL_RenderSetClipRect(renderer_, &BORDER_INT);
         showSimpleSpriteVector(
@@ -207,4 +220,10 @@ static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0xFF, 0, 0xFF);
     SDL_RenderDrawRectF(renderer, &r);
+}
+
+static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r)
+{
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0xFF, 0xFF);
+    SDL_RenderDrawRect(renderer, &r);
 }

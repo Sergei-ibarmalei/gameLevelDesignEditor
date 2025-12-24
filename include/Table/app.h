@@ -1,8 +1,9 @@
 #pragma once
 
-#include "SpriteTable/spritetable.h"
 #include <SDL.h>
 #include <SDL_image.h>
+#include "SpriteTable/spritetable.h"
+#include "EditorTable/editortable.h"
 
 class App
 {
