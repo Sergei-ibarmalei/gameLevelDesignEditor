@@ -45,7 +45,7 @@ class Sprite
     Sprite(const SDL_Rect& rectFromAtlas, float x, float y);
 
 #ifdef POS_HORIZONTAL
-    bool operator==(const float other_x)
+    bool operator==(const float other_x) const
     {
         return std::abs(transform.rect.x - other_x) < 0.01f;
     }

@@ -47,6 +47,9 @@ bool App::init(int width, int height)
         return false;
     }
 
+    // Включаем альфа-смешивание для рендерера
+    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+
     running_ = true;
     return true;
 }
@@ -185,7 +188,7 @@ void App::shutdown()
 
 static void showBorder(SDL_Renderer* renderer)
 {
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 0);
+    SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 255);
     SDL_RenderDrawRect(renderer, &BORDER_INT);
 }
 

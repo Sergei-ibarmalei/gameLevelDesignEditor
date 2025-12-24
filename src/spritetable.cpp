@@ -78,6 +78,11 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size,
     for (size_t i = 0; i < size; ++i)
     {
         SDL_Surface* tmpSurface = IMG_Load(filePath[i]);
+
+        // Проверка
+        SDL_Log("Amask: %08x, BytesPerPixe: %d", tmpSurface->format->Amask,
+                tmpSurface->format->BytesPerPixel);
+
         if (!tmpSurface)
         {
 #ifdef LOG
@@ -106,8 +111,11 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size,
     totalWidth -= SPRITE_PADDING;
 
     // Создаем итоговую поверхность
-    SDL_Surface* tmpAtlasSurface =
-        SDL_CreateRGBSurface(0, totalWidth, maxHeight, 32, 0, 0, 0, 0);
+    // SDL_Surface* tmpAtlasSurface =
+    //    SDL_CreateRGBSurface(0, totalWidth, maxHeight, 32, 0, 0, 0, 0);
+    SDL_Surface* tmpAtlasSurface = SDL_CreateRGBSurfaceWithFormat(
+        0, totalWidth, maxHeight, 32, SDL_PIXELFORMAT_RGBA32);
+
     if (!tmpAtlasSurface)
     {
         for (auto& s : surfacesFromImages)
@@ -120,8 +128,15 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size,
         return false;
     }
 
+    // Очищаем итоговую поверхность (делаем прозрачной)
+    SDL_FillRect(tmpAtlasSurface, NULL,
+                 SDL_MapRGBA(tmpAtlasSurface->format, 0, 0, 0, 0));
+
     for (size_t i = 0; i < size; ++i)
     {
+        // Включаем альфу у источников
+        SDL_SetSurfaceBlendMode(surfacesFromImages[i], SDL_BLENDMODE_BLEND);
+
         SDL_BlitSurface(surfacesFromImages[i], NULL, tmpAtlasSurface,
                         &sourceRects[i]);
         SDL_FreeSurface(surfacesFromImages[i]);
@@ -129,6 +144,13 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size,
     }
 
     atlasTexture = SDL_CreateTextureFromSurface(renderer, tmpAtlasSurface);
+#ifdef LOG
+    // Проверка blend mode созданной текстуры атласа
+    SDL_BlendMode bm;
+    SDL_GetTextureBlendMode(atlasTexture, &bm);
+    SDL_Log("Texture blend mode = %d",
+            (int)bm); // должно быть SDL_BLENDMODE_BLEND (1)
+#endif
     if (!atlasTexture)
     {
         SDL_FreeSurface(tmpAtlasSurface);
@@ -140,6 +162,17 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size,
     }
     SDL_FreeSurface(tmpAtlasSurface);
     tmpAtlasSurface = nullptr;
+
+    // Установка blend mode на созданную текстуру атласа
+    SDL_SetTextureBlendMode(atlasTexture, SDL_BLENDMODE_BLEND);
+#ifdef LOG
+    // Проверка blend mode созданной текстуры атласа
+    SDL_GetTextureBlendMode(atlasTexture, &bm);
+    SDL_Log("\nTexture blend mode = %d",
+            (int)bm); // должно быть SDL_BLENDMODE_BLEND (1)
+#endif
+
+
     return true;
 }
 
@@ -253,10 +286,6 @@ void SpriteTable::CheckMoveLogic() //-
     }
 }
 
-
-
-
-
 void SpriteTable::MoveChosenRect(float delta) //-
 {
     float currentPace = SPEED * delta;
@@ -266,16 +295,16 @@ void SpriteTable::MoveChosenRect(float delta) //-
     if (move_complete)
     {
         mechanic.fullPath = SPRITESIZE_WITH_PADDING;
-        mechanic.chRect.transform.SetOffsetFromOrigin(
-            mechanic.sign * mechanic.fullPath);
+        mechanic.chRect.transform.SetOffsetFromOrigin(mechanic.sign *
+                                                      mechanic.fullPath);
         mechanic.fullPath = 0.0f;
         mechanic.chRect.SetOrigin();
         mechanic.logic.move_process = false;
     }
     else
     {
-        mechanic.chRect.transform.SetOffsetFromOrigin(
-            mechanic.sign * mechanic.fullPath);
+        mechanic.chRect.transform.SetOffsetFromOrigin(mechanic.sign *
+                                                      mechanic.fullPath);
     }
 }
 
@@ -287,12 +316,13 @@ void SpriteTable::MoveSprites(float delta) //-
     bool move_complete{mechanic.fullPath >= SPRITESIZE_WITH_PADDING};
     if (move_complete)
     {
-        mechanic.logic.move_process = false;;
+        mechanic.logic.move_process = false;
+        ;
         mechanic.fullPath = SPRITESIZE_WITH_PADDING;
         for (auto& sprite : mechanic.vectorSprite)
         {
-            sprite.transform.SetOffsetFromOrigin(
-                mechanic.sign * mechanic.fullPath);
+            sprite.transform.SetOffsetFromOrigin(mechanic.sign *
+                                                 mechanic.fullPath);
         }
         mechanic.fullPath = 0.0f;
         mechanic.logic.moves_sprites = false;
@@ -317,32 +347,28 @@ void SpriteTable::MoveSprites(float delta) //-
 #ifdef POS_HORIZONTAL
 bool SpriteTable::Cant_move_left() //-
 {
-        bool white_at_the_left{mechanic.index == 0};
-        bool sprites_at_the_left{mechanic.vectorSprite.front() ==
-                                 XSPRITE_FIRST};
-        return white_at_the_left && sprites_at_the_left;
+    bool white_at_the_left{mechanic.index == 0};
+    bool sprites_at_the_left{mechanic.vectorSprite.front() == XSPRITE_FIRST};
+    return white_at_the_left && sprites_at_the_left;
 }
 
 bool SpriteTable::Cant_move_right() //-
 {
     bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
-    bool srpites_at_right_end{mechanic.vectorSprite.back() ==
-        XSPRITE_MIDDLE};
+    bool srpites_at_right_end{mechanic.vectorSprite.back() == XSPRITE_MIDDLE};
     return white_at_the_middle && srpites_at_right_end;
 }
 #else
 bool SpriteTable::Cant_move_top()
 {
-        bool white_at_the_top{mechanic.index == 0};
-        bool sprites_at_the_top{mechanic.vectorSprite.front() ==
-                                 YSPRITE_FIRST};
-        return white_at_the_top && sprites_at_the_top;
+    bool white_at_the_top{mechanic.index == 0};
+    bool sprites_at_the_top{mechanic.vectorSprite.front() == YSPRITE_FIRST};
+    return white_at_the_top && sprites_at_the_top;
 }
 bool SpriteTable::Cant_move_bottom()
 {
     bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
-    bool srpites_at_bottom_end{mechanic.vectorSprite.back() ==
-        YSPRITE_MIDDLE};
+    bool srpites_at_bottom_end{mechanic.vectorSprite.back() == YSPRITE_MIDDLE};
     return white_at_the_middle && srpites_at_bottom_end;
 }
 #endif
