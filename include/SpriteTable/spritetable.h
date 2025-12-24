@@ -135,31 +135,28 @@ public:
     SpriteTable(SpriteTable&&) = delete;
     SpriteTable& operator=(const SpriteTable&) = delete;
     SpriteTable& operator=(SpriteTable&&) = delete;
-    Mechanic& GetMechanic()
-    {
-        return mechanic;
-    }
+
     bool Status() const {return init;}
     const std::vector<Sprite>& MechanicVectorSprite() const {return mechanic.vectorSprite;}
     SDL_Texture* AtlasTexture() const {return atlas->GetAtlasTexture();}
-    Logics& GetLogic() {return mechanic.logic;}
+
     const SDL_FRect& GetChosenRect() const
     {
         return mechanic.chRect.transform.GetRect();
     }
-    void CheckMoveLogic();
-    void MoveWhite(float delta);
-    void MoveSprites(float delta);
+    void CheckMoveLogic(); //-
+    void MoveWhite(float delta); //-
+    void MoveSprites(float delta); //-
 
-    bool WhiteCanMove() const
+    bool WhiteCanMove() const //-
     {
         return IsMoveProcess() && mechanic.logic.moves_white;
     }
-    bool SpritesCanMove() const
+    bool SpritesCanMove() const //-
     {
         return IsMoveProcess() && mechanic.logic.moves_sprites;
     }
-    bool White_is_not_at_ends() const
+    bool White_is_not_at_ends() const //-
     {
 #ifdef POS_HORIZONTAL
         return !mechanic.logic.white_at_left_end &&
@@ -170,48 +167,38 @@ public:
 #endif 
     }
 
-    bool IsMoveProcess() const
+    bool IsMoveProcess() const //-
     {
         return mechanic.logic.move_process;
     }
-    void MoveProcessStop()
-    {
-        mechanic.logic.move_process = false;
-    }
-    void MoveProcessStart()
+
+    void MoveProcessStart()// -
     {
         mechanic.logic.move_process = true;
     }
-    /*void SetSign(int sign)
-    {
-        mechanic.sign = sign;
-    }   
-    void ChangeIndex()
-    {
-        mechanic.index += mechanic.sign;
-    } */
-    void SetDirectrion(EDirection dir)
+
+    void SetDirectrion(EDirection dir) //-
     {
         mechanic.sign = static_cast<int>(dir);
         mechanic.index += mechanic.sign;
     }
 #ifdef POS_HORIZONTAL
-    bool Cant_move_right();
-    bool Cant_move_left();
-    void White_is_not_at_left_end()
+    bool Cant_move_right(); //-
+    bool Cant_move_left(); //-
+    void White_is_not_at_left_end() //-
     {
         mechanic.logic.white_at_left_end = false;
     }
-    void White_is_not_at_right_end()
+    void White_is_not_at_right_end() //-
     {
         mechanic.logic.white_at_right_end = false;
     }
-    void White_is_at_right_end()
+    void White_is_at_right_end() //-
     {
         mechanic.logic.white_at_right_end = true;
         mechanic.logic.move_process = false;
     }
-    void White_is_at_left_end()
+    void White_is_at_left_end() //-
     {
         mechanic.logic.white_at_left_end = true;
         mechanic.logic.move_process = false;

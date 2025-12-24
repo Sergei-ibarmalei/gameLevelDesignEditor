@@ -197,7 +197,7 @@ void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects)
     }
 }
 
-void SpriteTable::CheckMoveLogic()
+void SpriteTable::CheckMoveLogic() //-
 {
 #ifdef POS_HORIZONTAL
     bool white_at_left{mechanic.index < 0};
@@ -220,7 +220,6 @@ void SpriteTable::CheckMoveLogic()
             mechanic.index = 0;
             mechanic.logic.moves_white = false;
             mechanic.logic.moves_sprites = true;
-            //mechanic.dir = ESpritesDirection::RIGHT;
             mechanic.dir = EDirection::RIGHT;
         }
 #ifdef POS_HORIZONTAL
@@ -232,7 +231,6 @@ void SpriteTable::CheckMoveLogic()
             mechanic.index = MIDDLE_INDEX;
             mechanic.logic.moves_white = false;
             mechanic.logic.moves_sprites = true;
-            //mechanic.dir = ESpritesDirection::LEFT;
             mechanic.dir = EDirection::LEFT;
         }
     }
@@ -314,12 +312,12 @@ void SpriteTable::CheckMoveLogic()
 //    }   
 //}
 
-void SpriteTable::MoveWhite(float delta)
+void SpriteTable::MoveWhite(float delta) //-
 {
     float currentPace = SPEED * delta;
     mechanic.fullPath += currentPace;
     bool move_complete{mechanic.fullPath >= SPRITESIZE_WITH_PADDING};
-    //mechanic.sign = static_cast<int>(mechanic.dir);
+
     if (move_complete)
     {
         mechanic.fullPath = SPRITESIZE_WITH_PADDING;
@@ -336,7 +334,7 @@ void SpriteTable::MoveWhite(float delta)
     }
 }
 
-void SpriteTable::MoveSprites(float delta)
+void SpriteTable::MoveSprites(float delta) //-
 {
     float currentPace = SPEED * delta;
     mechanic.fullPath += currentPace;
@@ -362,7 +360,7 @@ void SpriteTable::MoveSprites(float delta)
 }
 
 #ifdef POS_HORIZONTAL
-bool SpriteTable::Cant_move_left() 
+bool SpriteTable::Cant_move_left() //-
 {
         bool white_at_the_left{mechanic.index == 0};
         bool sprites_at_the_left{mechanic.vectorSprite.front() ==
@@ -370,7 +368,7 @@ bool SpriteTable::Cant_move_left()
         return white_at_the_left && sprites_at_the_left;
 }
 
-bool SpriteTable::Cant_move_right() 
+bool SpriteTable::Cant_move_right() //-
 {
     bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
     bool srpites_at_right_end{mechanic.vectorSprite.back() ==
