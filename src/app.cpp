@@ -74,27 +74,6 @@ void App::run()
 #endif
         return;
     }
-//    SDL_Point spriteTableStartPos = editorTable.GetSpriteTableStartPosition();
-//    if (spriteTableStartPos.x == 0 || spriteTableStartPos.y == 0)
-//    {
-//#ifdef LOG
-//        std::cout << "Wrong sprite table start position, abort.\n";
-//#endif
-//        return;
-//    }
-//    SpriteBorderType spriteTableBorder. = editorTable.GetMadeSpriteBorder();
-//    if (spriteTableBorder.w == 0 || spriteTableBorder.h == 0)
-//    {
-//#ifdef LOG
-//        std::cout << "Wrong made sprite border sizes, abort.\n";
-//#endif
-//        return;
-//    }
-
-
-    //SpriteTableBorderType spriteTableBorder;
-    //spriteTableBorder.orientation = spriteBorderOrientation;
-    //spriteTableBorder.spriteBorderRect = editorTable.GetMadeSpriteBorder();
 
 
     if (spriteTableBorder.spriteBorderRect.w == 0 ||
@@ -207,14 +186,7 @@ void App::run()
         SDL_RenderClear(renderer_);
 
         showEditorTableBorder(renderer_, editorTable.GetTableBorder());
-        // spriteTable.MovingInSpriteTable(deltaTime);
 
-        // SDL_RenderSetClipRect(renderer_, &BORDER_INT);
-        // showSimpleSpriteVector(
-        //     renderer_, spriteTable.AtlasTexture(), spriteTable.MechanicVectorSprite());
-        // SDL_RenderSetClipRect(renderer_, nullptr);
-        // showChosenRect(renderer_, spriteTable.GetChosenRect());
-        // showBorder(renderer_);
         showSpriteTableBorder(renderer_, spriteTableBorder);
 
 

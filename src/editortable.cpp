@@ -46,9 +46,7 @@ EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb, int rows, int c
                 }
                 
             }
-            //bool wrongHeight {(height + leftY + BORDER_SPRITEBORDER_PADDING +
-            //    bs.spriteTableBorderSizes.horizontal.h) >
-            //                 bs.window_h};
+
             bool wrongHeight{(height + leftY + BORDER_SPRITEBORDER_PADDING +
                 stb.spriteBorderSizes.horizontal.h) > WINDOW_H};
             if (wrongHeight)
@@ -130,12 +128,6 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
                          bool isActive)
 {
     thisTableIsActive = isActive;
-    //BorderStuff bs{};
-    // получаем уже известные размеры рамки спрайтбордера
-    //stb.spriteBorderSizes = spriteTableBorderSizes;
-    //stb..orientation = sbOrientation;
-    //stb.spriteBorderSizes.window_w = WINDOW_W;
-    //bs.window_h = WINDOW_H;
     tableBorder = new (std::nothrow) 
         EditorTableBorder(stb, rows, cols, SPRITE_SIZE);
     if (!tableBorder)
@@ -164,10 +156,6 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
             stb.spriteBorderSizes.horizontal.y = tableBorder->GetBorder().y +
                                          tableBorder->GetBorder().h +
                                          BORDER_SPRITEBORDER_PADDING;
-            //madeSpriteBorder.x = spriteBorder.horizontal.x;
-            //madeSpriteBorder.y = spriteBorder.horizontal.y;
-            //madeSpriteBorder.w = spriteBorder.horizontal.w;
-            //madeSpriteBorder.h = spriteBorder.horizontal.h;
             stb.spriteBorderRect = stb.spriteBorderSizes.horizontal;
             break;
         }
@@ -179,10 +167,6 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
                                          tableBorder->GetBorder().w +
                                          BORDER_SPRITEBORDER_PADDING;
             stb.spriteBorderSizes.vertical.y = tableBorder->GetBorder().y;
-            //madeSpriteBorder.x = spriteBorder.vertical.x;
-            //madeSpriteBorder.y = spriteBorder.vertical.y;
-            //madeSpriteBorder.w = spriteBorder.vertical.w;
-            //madeSpriteBorder.h = spriteBorder.vertical.h;
             stb.spriteBorderRect = stb.spriteBorderSizes.vertical;
             break;
         }
@@ -195,11 +179,6 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
 
 }
 
-//SDL_Rect EditorTable::madeSpriteBorder()
-//{
-//    SDL_Rect sb{};
-//    sb.x = bs.sprite
-//}
 
 EditorTable::~EditorTable()
 {

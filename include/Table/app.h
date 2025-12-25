@@ -9,7 +9,6 @@
 class App
 {
   public:
-    // USpriteBorderSizes spriteTableBorderSizes;
     SpriteTableBorderType spriteTableBorder;
     bool init(int w, int h);
     void run();
