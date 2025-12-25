@@ -14,7 +14,15 @@ struct MouseActionType
     int row {0};
     int col {0};
     SDL_Rect Box{};
+    SDL_Color boxColor{200, 200, 210, 80};
     bool IsOnEditorTable{false};
+};
+
+class HandleMouseAction
+{
+public:
+    void CalculateLightBox(MouseActionType& ma,
+                           const SDL_Rect& editorTableBorder);
 };
 
 class App

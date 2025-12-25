@@ -147,13 +147,6 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
     }
 
     atlasTexture = SDL_CreateTextureFromSurface(renderer, tmpAtlasSurface);
-#ifdef LOG
-    // Проверка blend mode созданной текстуры атласа
-    SDL_BlendMode bm;
-    SDL_GetTextureBlendMode(atlasTexture, &bm);
-    SDL_Log("Texture blend mode = %d",
-            (int)bm); // должно быть SDL_BLENDMODE_BLEND (1)
-#endif
     if (!atlasTexture)
     {
         SDL_FreeSurface(tmpAtlasSurface);
@@ -163,6 +156,14 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
 #endif
         return false;
     }
+#ifdef LOG
+    // Проверка blend mode созданной текстуры атласа
+    SDL_BlendMode bm;
+    SDL_GetTextureBlendMode(atlasTexture, &bm);
+    SDL_Log("Texture blend mode = %d",
+            (int)bm); // должно быть SDL_BLENDMODE_BLEND (1)
+#endif
+
     SDL_FreeSurface(tmpAtlasSurface);
     tmpAtlasSurface = nullptr;
 
@@ -199,7 +200,15 @@ SpriteTable::~SpriteTable()
 
 bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder)
 {
-    atlas = new (std::nothrow) Atlas(r, SPRITE_TABLE_COUNT_TOTAL, filePath);
+    size_t spriteTableCountTotal = std::size(filePath);
+    if (!spriteTableCountTotal)
+    {
+#ifdef LOG
+        std::cout << "File path size is 0, abort.\n";
+#endif
+        return false;
+    }
+    atlas = new (std::nothrow) Atlas(r, spriteTableCountTotal, filePath);
     if (!atlas)
     {
 #ifdef LOG
@@ -222,7 +231,8 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
     return true;
 }
 
-void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects, SpriteTableBorderType& spriteBorder)
+void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects,
+                            SpriteTableBorderType& spriteBorder)
 {
     auto startX = static_cast<float>(spriteBorder.spriteBorderRect.x + PADDING);
     auto startY = static_cast<float>(spriteBorder.spriteBorderRect.y + PADDING);
@@ -246,28 +256,26 @@ void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects, SpriteTable
     }
 }
 
-static bool white_at_left{false};
-static bool white_at_right{false};
-static bool white_at_top{false};
-static bool white_at_bottom{false};
-static bool last_sprite_at_the_middle{false};
-
-
 void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
 {
+    bool WhiteAtLeft{false};
+    bool WhiteAtRight{false};
+    bool WhiteAtTop{false};
+    bool WhiteAtBottom{false};
+    bool LastSpriteAtTheMiddle{false};
 
     switch (spriteTable.orientation)
     {
         case ESpriteBorderOrientation::HORIZONTAL:
         {
-            white_at_left = mechanic.index < 0;
-            white_at_right = mechanic.index > MIDDLE_INDEX;
+            WhiteAtLeft = mechanic.index < 0;
+            WhiteAtRight = mechanic.index > MIDDLE_INDEX;
             break;
         }
         case ESpriteBorderOrientation::VERTICAL:
         {
-            white_at_top = mechanic.index < 0;
-            white_at_bottom = mechanic.index > MIDDLE_INDEX;
+            WhiteAtTop = mechanic.index < 0;
+            WhiteAtBottom = mechanic.index > MIDDLE_INDEX;
             break;
         }
         default:
@@ -280,9 +288,9 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
     if (we_can_move_white)
     {
 #ifdef POS_HORIZONTAL
-        if (white_at_left)
+        if (WhiteAtLeft)
 #else
-        if (white_at_top)
+        if (WhiteAtTop)
 #endif
         {
             mechanic.index = 0;
@@ -291,9 +299,9 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
             mechanic.dir = EDirection::RIGHT;
         }
 #ifdef POS_HORIZONTAL
-        if (white_at_right)
+        if (WhiteAtRight)
 #else
-        if (white_at_bottom)
+        if (WhiteAtBottom)
 #endif
         {
             mechanic.index = MIDDLE_INDEX;
@@ -309,17 +317,21 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
         {
             [[likely]] case ESpriteBorderOrientation::HORIZONTAL:
             {
-                last_sprite_at_the_middle = mechanic.vectorSprite.back() == spriteTable.xSpriteMiddle;
+                LastSpriteAtTheMiddle =
+                    mechanic.vectorSprite.back() == spriteTable.xSpriteMiddle;
                 break;
             }
             case ESpriteBorderOrientation::VERTICAL:
             {
-                last_sprite_at_the_middle = mechanic.vectorSprite.back() == spriteTable.ySpriteMiddle;
+                LastSpriteAtTheMiddle =
+                    mechanic.vectorSprite.back() == spriteTable.ySpriteMiddle;
                 break;
             }
-            default: {}
+            default:
+            {
+            }
         }
-        if (white_at_the_middle && last_sprite_at_the_middle)
+        if (white_at_the_middle && LastSpriteAtTheMiddle)
         {
             mechanic.logic.MovesSprites = false;
             mechanic.logic.MovesWhite = true;
@@ -378,7 +390,6 @@ void SpriteTable::moveSprites(float delta) //-
             sprite.transform.SetOffsetFromOrigin(mechanic.sign * mechanic.fullPath);
         }
     }
-
 }
 
 #ifdef POS_HORIZONTAL
@@ -399,15 +410,13 @@ bool SpriteTable::Cant_move_right(SpriteTableBorderType& spriteTableBorder) //-
 bool SpriteTable::Cant_move_top(SpriteTableBorderType& spriteTableBorder)
 {
     bool white_at_the_top{mechanic.index == 0};
-    bool sprites_at_the_top{mechanic.vectorSprite.front() ==
-        spriteTableBorder.ySpriteFirst};
+    bool sprites_at_the_top{mechanic.vectorSprite.front() == spriteTableBorder.ySpriteFirst};
     return white_at_the_top && sprites_at_the_top;
 }
 bool SpriteTable::Cant_move_bottom(SpriteTableBorderType& spriteTableBorder)
 {
     bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
-    bool srpites_at_bottom_end{mechanic.vectorSprite.back() == 
-        spriteTableBorder.ySpriteMiddle};
+    bool srpites_at_bottom_end{mechanic.vectorSprite.back() == spriteTableBorder.ySpriteMiddle};
     return white_at_the_middle && srpites_at_bottom_end;
 }
 #endif

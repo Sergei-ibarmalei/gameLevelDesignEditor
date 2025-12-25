@@ -6,12 +6,14 @@ static void showSimpleSpriteVector(SDL_Renderer* renderer,
                                    SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite);
 static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
-//static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r);
+// static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r);
 static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r);
+static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma);
 
 static MouseActionType mouseAction;
 static Uint32 takeMouseAction;
 static SDL_Rect editorTableBorder;
+static HandleMouseAction handeMouseAction;
 
 bool App::initSdl(int width, int height)
 {
@@ -83,11 +85,9 @@ bool App::initEditorTableAndSpriteTable()
 #endif
         return false;
     }
-    spriteTableBorder.xSpriteMiddle =
-        static_cast<float>(spriteTableBorder.spriteBorderRect.x +
+    spriteTableBorder.xSpriteMiddle = static_cast<float>(spriteTableBorder.spriteBorderRect.x +
                                                          (2 * SPRITE_SIZE) + (3 * PADDING));
-    spriteTableBorder.ySpriteMiddle = 
-        static_cast<float>(spriteTableBorder.spriteBorderRect.y +
+    spriteTableBorder.ySpriteMiddle = static_cast<float>(spriteTableBorder.spriteBorderRect.y +
                                                          (2 * SPRITE_SIZE) + (3 * PADDING));
     spriteTableBorder.xSpriteFirst =
         static_cast<float>(spriteTableBorder.spriteBorderRect.x + PADDING);
@@ -102,7 +102,8 @@ bool App::initEditorTableAndSpriteTable()
 
 void App::run()
 {
-    if (!initEditorTableAndSpriteTable()) return;
+    if (!initEditorTableAndSpriteTable())
+        return;
     editorTableBorder = editorTable->GetIntTableBorder();
 
     SDL_Event e;
@@ -189,21 +190,30 @@ void App::run()
                 }
             }
         }
-        takeMouseAction = SDL_GetMouseState(&mouseAction.mouseX, &mouseAction.mouseY);
 
         SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
         SDL_RenderClear(renderer_);
 
+        takeMouseAction = SDL_GetMouseState(&mouseAction.mouseX, &mouseAction.mouseY);
+        mouseAction.IsOnEditorTable =
+            (mouseAction.mouseX >= editorTableBorder.x &&
+             mouseAction.mouseX < (editorTableBorder.x + editorTableBorder.w) &&
+             mouseAction.mouseY >= editorTableBorder.y &&
+             mouseAction.mouseY < (editorTableBorder.y + editorTableBorder.h));
+        if (mouseAction.IsOnEditorTable)
+        {
+            handeMouseAction.CalculateLightBox(mouseAction, editorTableBorder);
+            showLightBox(renderer_, mouseAction);
+        }
 
         showEditorTableBorder(renderer_, editorTableBorder);
         spriteTable->MovingInSpriteTable(deltaTime);
 
         SDL_RenderSetClipRect(renderer_, &spriteTableBorder.spriteBorderRect);
-        showSimpleSpriteVector(renderer_,
-                                spriteTable->AtlasTexture(), spriteTable->MechanicVectorSprite());
+        showSimpleSpriteVector(
+            renderer_, spriteTable->AtlasTexture(), spriteTable->MechanicVectorSprite());
         SDL_RenderSetClipRect(renderer_, nullptr);
         showChosenRect(renderer_, spriteTable->GetChosenRect());
-
 
         showSpriteTableBorder(renderer_, spriteTableBorder);
 
@@ -236,7 +246,7 @@ void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTa
             stb.orientation = ESpriteBorderOrientation::HORIZONTAL;
             stb.spriteBorderSizes.horizontal.w =
                 static_cast<int>(SPRITE_TABLE_COUNT_VISIBLES * SPRITE_SIZE +
-                                   (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING);
+                                 (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING);
             stb.spriteBorderSizes.horizontal.h = static_cast<int>(PADDING * 2 + SPRITE_SIZE);
             break;
         }
@@ -246,13 +256,24 @@ void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTa
             stb.spriteBorderSizes.vertical.w = static_cast<int>(PADDING * 2 + SPRITE_SIZE);
             stb.spriteBorderSizes.vertical.h =
                 static_cast<int>(SPRITE_TABLE_COUNT_VISIBLES * SPRITE_SIZE +
-                                   (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING);
+                                 (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING);
             break;
         }
         default:
         {
         }
     }
+}
+
+void HandleMouseAction::CalculateLightBox(MouseActionType& ma, const SDL_Rect& editorTableBorder)
+{
+
+    ma.col = static_cast<int>((ma.mouseX - editorTableBorder.x) / SPRITE_SIZE);
+    ma.row = static_cast<int>((ma.mouseY - editorTableBorder.y) / SPRITE_SIZE);
+    ma.Box.x = editorTableBorder.x + ma.col * static_cast<int>(SPRITE_SIZE);
+    ma.Box.y = editorTableBorder.y + ma.row * static_cast<int>(SPRITE_SIZE);
+    ma.Box.w = static_cast<int>(SPRITE_SIZE);
+    ma.Box.h = static_cast<int>(SPRITE_SIZE);
 }
 
 static void showSpriteTableBorder(SDL_Renderer* renderer, SpriteTableBorderType& spriteTableBorder)
@@ -294,4 +315,10 @@ static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r)
 {
     SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 0xFF);
     SDL_RenderDrawRect(renderer, &r);
+}
+
+static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma)
+{
+    SDL_SetRenderDrawColor(renderer, ma.boxColor.r, ma.boxColor.g, ma.boxColor.b, ma.boxColor.a);
+    SDL_RenderFillRect(renderer, &ma.Box);
 }
