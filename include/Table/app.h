@@ -7,6 +7,16 @@
 #include "EditorTable/editortable.h"
 #include "position.h"
 
+struct MouseActionType
+{
+    int mouseX {0};
+    int mouseY{0};
+    int row {0};
+    int col {0};
+    SDL_Rect Box{};
+    bool IsOnEditorTable{false};
+};
+
 class App
 {
   public:

@@ -274,8 +274,8 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
         {
         }
     }
-    bool we_can_move_white{mechanic.logic.moves_white};
-    bool we_can_move_sprites{mechanic.logic.moves_sprites};
+    bool we_can_move_white{mechanic.logic.MovesWhite};
+    bool we_can_move_sprites{mechanic.logic.MovesSprites};
 
     if (we_can_move_white)
     {
@@ -286,8 +286,8 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
 #endif
         {
             mechanic.index = 0;
-            mechanic.logic.moves_white = false;
-            mechanic.logic.moves_sprites = true;
+            mechanic.logic.MovesWhite = false;
+            mechanic.logic.MovesSprites = true;
             mechanic.dir = EDirection::RIGHT;
         }
 #ifdef POS_HORIZONTAL
@@ -297,8 +297,8 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
 #endif
         {
             mechanic.index = MIDDLE_INDEX;
-            mechanic.logic.moves_white = false;
-            mechanic.logic.moves_sprites = true;
+            mechanic.logic.MovesWhite = false;
+            mechanic.logic.MovesSprites = true;
             mechanic.dir = EDirection::LEFT;
         }
     }
@@ -321,9 +321,9 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
         }
         if (white_at_the_middle && last_sprite_at_the_middle)
         {
-            mechanic.logic.moves_sprites = false;
-            mechanic.logic.moves_white = true;
-            mechanic.logic.move_process = true;
+            mechanic.logic.MovesSprites = false;
+            mechanic.logic.MovesWhite = true;
+            mechanic.logic.MoveProcess = true;
         }
     }
 }
@@ -340,7 +340,7 @@ void SpriteTable::moveChosenRect(float delta) //-
         mechanic.chRect.transform.SetOffsetFromOrigin(mechanic.sign * mechanic.fullPath);
         mechanic.fullPath = 0.0f;
         mechanic.chRect.SetOrigin();
-        mechanic.logic.move_process = false;
+        mechanic.logic.MoveProcess = false;
     }
     else
     {
@@ -356,7 +356,7 @@ void SpriteTable::moveSprites(float delta) //-
     bool move_complete{mechanic.fullPath >= SPRITESIZE_WITH_PADDING};
     if (move_complete)
     {
-        mechanic.logic.move_process = false;
+        mechanic.logic.MoveProcess = false;
         ;
         mechanic.fullPath = SPRITESIZE_WITH_PADDING;
         for (auto& sprite : mechanic.vectorSprite)
@@ -364,8 +364,8 @@ void SpriteTable::moveSprites(float delta) //-
             sprite.transform.SetOffsetFromOrigin(mechanic.sign * mechanic.fullPath);
         }
         mechanic.fullPath = 0.0f;
-        mechanic.logic.moves_sprites = false;
-        mechanic.logic.moves_white = true;
+        mechanic.logic.MovesSprites = false;
+        mechanic.logic.MovesWhite = true;
         for (auto& sprite : mechanic.vectorSprite)
         {
             sprite.transform.SetOrigin();

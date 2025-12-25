@@ -63,15 +63,15 @@ class ChosenRect
 
 struct Logics
 {
-    bool move_process{false};
-    bool moves_white{true};
-    bool moves_sprites{false};
+    bool MoveProcess{false};
+    bool MovesWhite{true};
+    bool MovesSprites{false};
 #ifdef POS_HORIZONTAL
-    bool white_at_right_end{false};
-    bool white_at_left_end{false};
+    bool WhiteAtRightEnd{false};
+    bool WhiteAtLeftEnd{false};
 #else
-    bool white_at_top_end{false};
-    bool white_at_bottom_end{false};
+    bool WhiteAtTopEnd{false};
+    bool WhiteAtBottomEnd{false};
 #endif
 };
 
@@ -119,20 +119,20 @@ class SpriteTable
     bool chosenRectIsNotAtEnds() const //-
     {
 #ifdef POS_HORIZONTAL
-        return !mechanic.logic.white_at_left_end && !mechanic.logic.white_at_right_end;
+        return !mechanic.logic.WhiteAtLeftEnd && !mechanic.logic.WhiteAtRightEnd;
 #else
-        return !mechanic.logic.white_at_top_end && !mechanic.logic.white_at_bottom_end;
+        return !mechanic.logic.WhiteAtTopEnd && !mechanic.logic.WhiteAtBottomEnd;
 #endif
     }
     bool chosenRectCanMove() const //-
     {
-        return IsMoveProcess() && mechanic.logic.moves_white;
+        return mechanic.logic.MoveProcess && mechanic.logic.MovesWhite;
     }
     void moveChosenRect(float delta); //-
     void moveSprites(float delta);    //-
     bool spritesCanMove() const       //-
     {
-        return IsMoveProcess() && mechanic.logic.moves_sprites;
+        return mechanic.logic.MoveProcess && mechanic.logic.MovesSprites;
     }
 
   public:
@@ -153,12 +153,12 @@ class SpriteTable
 
     bool IsMoveProcess() const //-
     {
-        return mechanic.logic.move_process;
+        return mechanic.logic.MoveProcess;
     }
 
     void MoveProcessStart() // -
     {
-        mechanic.logic.move_process = true;
+        mechanic.logic.MoveProcess = true;
     }
 
     void SetDirectrion(EDirection dir) //-
@@ -170,35 +170,35 @@ class SpriteTable
     bool Cant_move_right(SpriteTableBorderType& spriteTableBorder); //-
     bool Cant_move_left(SpriteTableBorderType& spriteTableBorder);  //-
 
-    void ChosenRectIsNotAtLeftEnd() { mechanic.logic.white_at_left_end = false; }
+    void ChosenRectIsNotAtLeftEnd() { mechanic.logic.WhiteAtLeftEnd = false; }
     void ChosenRectIsNotAtRightEnd() //-
     {
-        mechanic.logic.white_at_right_end = false;
+        mechanic.logic.WhiteAtRightEnd = false;
     }
     void ChosenRectIsAtRightEnd() //-
     {
-        mechanic.logic.white_at_right_end = true;
-        mechanic.logic.move_process = false;
+        mechanic.logic.WhiteAtRightEnd = true;
+        mechanic.logic.MoveProcess = false;
     }
     void ChosenRectIsAtLeftEnd() //-
     {
-        mechanic.logic.white_at_left_end = true;
-        mechanic.logic.move_process = false;
+        mechanic.logic.WhiteAtLeftEnd = true;
+        mechanic.logic.MoveProcess = false;
     }
 #else
     bool Cant_move_bottom(SpriteTableBorderType& spriteTableBorder);
     bool Cant_move_top(SpriteTableBorderType& spriteTableBorder);
-    void ChosenRectIsNotAtTopEnd() { mechanic.logic.white_at_top_end = false; }
-    void ChosenRectIsNotAtBottomEnd() { mechanic.logic.white_at_bottom_end = false; }
+    void ChosenRectIsNotAtTopEnd() { mechanic.logic.WhiteAtTopEnd = false; }
+    void ChosenRectIsNotAtBottomEnd() { mechanic.logic.WhiteAtBottomEnd = false; }
     void ChosenRectIsAtBottomEnd()
     {
-        mechanic.logic.white_at_bottom_end = true;
-        mechanic.logic.move_process = false;
+        mechanic.logic.WhiteAtBottomEnd = true;
+        mechanic.logic.MoveProcess = false;
     }
     void ChosenRectIsAtTopEnd()
     {
-        mechanic.logic.white_at_top_end = true;
-        mechanic.logic.move_process = false;
+        mechanic.logic.WhiteAtTopEnd = true;
+        mechanic.logic.MoveProcess = false;
     }
 #endif
 };

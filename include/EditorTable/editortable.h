@@ -22,6 +22,7 @@ struct EditorTableBorder
     bool init{true};
     bool active{false};
     SDL_FRect border{};
+    SDL_Rect intBorder{};
 
     EditorTableBorder(SpriteTableBorderType& stb,
                       int rows = EDITOR_TABLEBORDER_MINROW,
@@ -31,6 +32,7 @@ struct EditorTableBorder
     bool IsActive() const { return active; }
     void SetActive(bool a) { active = a; }
     const SDL_FRect& GetBorder() const { return border; }
+    const SDL_Rect& GetIntBorder() const { return intBorder; }
 };
 
 class EditorTable
@@ -55,4 +57,7 @@ class EditorTable
     {
             return tableBorder->GetBorder();
     }
+    const SDL_Rect& GetIntTableBorder() const
+    {
+            return tableBorder->GetIntBorder(); }
 };

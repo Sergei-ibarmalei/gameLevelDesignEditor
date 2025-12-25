@@ -6,7 +6,12 @@ static void showSimpleSpriteVector(SDL_Renderer* renderer,
                                    SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite);
 static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
-static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r);
+//static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r);
+static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r);
+
+static MouseActionType mouseAction;
+static Uint32 takeMouseAction;
+static SDL_Rect editorTableBorder;
 
 bool App::initSdl(int width, int height)
 {
@@ -98,6 +103,7 @@ bool App::initEditorTableAndSpriteTable()
 void App::run()
 {
     if (!initEditorTableAndSpriteTable()) return;
+    editorTableBorder = editorTable->GetIntTableBorder();
 
     SDL_Event e;
 
@@ -183,12 +189,13 @@ void App::run()
                 }
             }
         }
+        takeMouseAction = SDL_GetMouseState(&mouseAction.mouseX, &mouseAction.mouseY);
 
         SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
         SDL_RenderClear(renderer_);
 
 
-        showEditorTableBorder(renderer_, editorTable->GetTableBorder());
+        showEditorTableBorder(renderer_, editorTableBorder);
         spriteTable->MovingInSpriteTable(deltaTime);
 
         SDL_RenderSetClipRect(renderer_, &spriteTableBorder.spriteBorderRect);
@@ -283,8 +290,8 @@ static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r)
     SDL_RenderDrawRectF(renderer, &r);
 }
 
-static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r)
+static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r)
 {
     SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 0xFF);
-    SDL_RenderDrawRectF(renderer, &r);
+    SDL_RenderDrawRect(renderer, &r);
 }
