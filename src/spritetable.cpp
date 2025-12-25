@@ -178,7 +178,7 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
     return true;
 }
 
-SpriteTable::SpriteTable(SDL_Renderer* r, SpriteBorderType& spriteBorder)
+SpriteTable::SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder)
 {
     if (!r)
     {
@@ -197,7 +197,7 @@ SpriteTable::~SpriteTable()
     atlas = nullptr;
 }
 
-bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteBorderType& spriteBorder)
+bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder)
 {
     atlas = new (std::nothrow) Atlas(r, SPRITE_TABLE_COUNT_TOTAL, filePath);
     if (!atlas)
@@ -222,7 +222,7 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteBorderType& spriteBorde
     return true;
 }
 
-void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects, SpriteBorderType& spriteBorder)
+void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects, SpriteTableBorderType& spriteBorder)
 {
     // auto startX = BORDER.x + PADDING;
     // auto startY = BORDER.y + PADDING;

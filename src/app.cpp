@@ -6,7 +6,7 @@ static void showSimpleSpriteVector(SDL_Renderer* renderer,
                                    SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite);
 static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
-static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r);
+static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r);
 
 bool App::init(int width, int height)
 {
@@ -61,8 +61,12 @@ void App::run()
 #else
     ESpriteBorderOrientation spriteBorderOrientation = ESpriteBorderOrientation::HORIZONTAL;
 #endif
-    defineSpriteBorderSizes(spriteBorderOrientation);
-    EditorTable editorTable(spriteBorderOrientation, spriteBorderSizes, 20, 29, true);
+    defineSpriteBorderSizes(spriteBorderOrientation, spriteTableBorder);
+    std::cout << "spriteTableBorder.spriteBorderSizes.horizontal.w: "
+              << spriteTableBorder.spriteBorderSizes.horizontal.w << "\n";
+    std::cout << "spriteTableBorder.spriteBorderSizes.horizontal.h: "
+              << spriteTableBorder.spriteBorderSizes.horizontal.h << "\n";
+    EditorTable editorTable(spriteBorderOrientation, spriteTableBorder, 20, 29, true);
     if (!editorTable.Status())
     {
 #ifdef LOG
@@ -86,9 +90,13 @@ void App::run()
 //#endif
 //        return;
 //    }
-    SpriteTableBorderType spriteTableBorder;
-    spriteTableBorder.orientation = spriteBorderOrientation;
-    spriteTableBorder.spriteBorderRect = editorTable.GetMadeSpriteBorder();
+
+
+    //SpriteTableBorderType spriteTableBorder;
+    //spriteTableBorder.orientation = spriteBorderOrientation;
+    //spriteTableBorder.spriteBorderRect = editorTable.GetMadeSpriteBorder();
+
+
     if (spriteTableBorder.spriteBorderRect.w == 0 ||
         spriteTableBorder.spriteBorderRect.h == 0)
     {   
@@ -165,26 +173,26 @@ void App::run()
                     {
                         spriteTable.MoveProcessStart();
                         spriteTable.ChosenRectIsNotAtTopEnd();
-                        if (spriteTable.Cant_move_bottom())
+                        if (spriteTable.Cant_move_bottom(spriteTableBorder))
                         {
                             spriteTable.ChosenRectIsAtBottomEnd();
                             break;
                         }
                         spriteTable.SetDirectrion(EDirection::DOWN);
-                        spriteTable.CheckMoveLogic();
+                        spriteTable.CheckMoveLogic(spriteTableBorder);
                         break;
                     }
                     case SDLK_UP:
                     {
                         spriteTable.MoveProcessStart();
                         spriteTable.ChosenRectIsNotAtBottomEnd();
-                        if (spriteTable.Cant_move_top())
+                        if (spriteTable.Cant_move_top(spriteTableBorder))
                         {
                             spriteTable.ChosenRectIsAtTopEnd();
                             break;
                         }
                         spriteTable.SetDirectrion(EDirection::UP);
-                        spriteTable.CheckMoveLogic();
+                        spriteTable.CheckMoveLogic(spriteTableBorder);
                         break;
                     }
                     default:
@@ -230,22 +238,29 @@ void App::shutdown()
     SDL_Quit();
 }
 
-void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation)
+void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation,
+    SpriteTableBorderType& stb)
 {
     switch (orientation)
     {
         case ESpriteBorderOrientation::HORIZONTAL:
         {
-            spriteBorderSizes.horizontal.w = SPRITE_TABLE_COUNT_VISIBLES * SPRITE_SIZE +
-                                             (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING;
-            spriteBorderSizes.horizontal.h = PADDING * 2 + SPRITE_SIZE;
+            stb.orientation = ESpriteBorderOrientation::HORIZONTAL;
+            stb.spriteBorderSizes.horizontal.w = 
+                static_cast<float>(SPRITE_TABLE_COUNT_VISIBLES * SPRITE_SIZE +
+                                             (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING);
+            stb.spriteBorderSizes.horizontal.h = 
+                static_cast<float>(PADDING * 2 + SPRITE_SIZE);
             break;
         }
         case ESpriteBorderOrientation::VERTICAL:
         {
-            spriteBorderSizes.vertical.w = PADDING * 2 + SPRITE_SIZE;
-            spriteBorderSizes.vertical.h = SPRITE_TABLE_COUNT_VISIBLES * SPRITE_SIZE +
-                                           (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING;
+            stb.orientation = ESpriteBorderOrientation::VERTICAL;
+            stb.spriteBorderSizes.vertical.w = 
+                static_cast<float>(PADDING * 2 + SPRITE_SIZE);
+            stb.spriteBorderSizes.vertical.h = 
+                static_cast<float>(SPRITE_TABLE_COUNT_VISIBLES * SPRITE_SIZE +
+                                           (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING);
             break;
         }
         default:
@@ -254,7 +269,8 @@ void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation)
     }
 }
 
-static void showSpriteTableBorder(SDL_Renderer* renderer, SpriteTableBorderType& spriteTableBorder)
+static void showSpriteTableBorder(SDL_Renderer* renderer, 
+    SpriteTableBorderType& spriteTableBorder)
 {
     if (spriteTableBorder.isActive)
         SDL_SetRenderDrawColor(renderer,
@@ -270,7 +286,7 @@ static void showSpriteTableBorder(SDL_Renderer* renderer, SpriteTableBorderType&
                                spriteTableBorder.inactiveBorderColor.a);
 
     SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 255);
-    SDL_RenderDrawRect(renderer, &spriteTableBorder.spriteBorderRect);
+    SDL_RenderDrawRectF(renderer, &spriteTableBorder.spriteBorderRect);
 }
 
 static void showSimpleSpriteVector(SDL_Renderer* renderer,
@@ -289,8 +305,8 @@ static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r)
     SDL_RenderDrawRectF(renderer, &r);
 }
 
-static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r)
+static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r)
 {
     SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 0xFF);
-    SDL_RenderDrawRect(renderer, &r);
+    SDL_RenderDrawRectF(renderer, &r);
 }

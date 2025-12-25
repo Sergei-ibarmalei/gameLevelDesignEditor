@@ -3,7 +3,7 @@
 
 static constexpr int BORDER_SPRITEBORDER_PADDING{10};
 
-EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float sprite_size)
+EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb, int rows, int cols, float sprite_size)
 {
     if (rows < EDITOR_TABLEBORDER_MINROW || cols < EDITOR_TABLEBORDER_MINCOLS)
     {
@@ -14,17 +14,22 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
         return;
     }
 
-    switch (bs.orientation)
+    switch (stb.orientation)
     {
         case ESpriteBorderOrientation::HORIZONTAL:
         {
-            width = static_cast<int>(cols * sprite_size);
-            height = static_cast<int>(rows * sprite_size);
-            bool wrongWidth{ (width + leftX) > bs.window_w};
+            // Ширина рамки редактора
+            width = (cols * sprite_size);
+
+            // Высота рамки редактора
+            height = (rows * sprite_size);
+
+            //bool wrongWidth{ (width + leftX) > bs.window_w};
+            bool wrongWidth{(width + leftX) > WINDOW_W};
             if (wrongWidth)
             {
 #ifdef LOG
-                std::cout << "Widnow sizes: " << bs.window_w << "x" << bs.window_h << "\n";
+                std::cout << "Widnow sizes: " << WINDOW_W << "x" << WINDOW_H << "\n";
                 std::cout << "First calculated width: " << width << "\n";
 
                 std::cout << "Width of border exceeds window width, and was"
@@ -33,16 +38,19 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
                 while (wrongWidth && (cols > EDITOR_TABLEBORDER_MINCOLS))
                 {
                     --cols;
-                    width = static_cast<int>(cols * sprite_size);
+                    width = (cols * sprite_size);
 #ifdef LOG
                     std::cout << "Adjusted width: " << width << "\n";
 #endif
-                    wrongWidth = (width + leftX)  > bs.window_w;
+                    wrongWidth = (width + leftX)  > WINDOW_W;
                 }
                 
             }
-            bool wrongHeight {(height + leftY + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.horizontal.h) >
-                             bs.window_h};
+            //bool wrongHeight {(height + leftY + BORDER_SPRITEBORDER_PADDING +
+            //    bs.spriteTableBorderSizes.horizontal.h) >
+            //                 bs.window_h};
+            bool wrongHeight{(height + leftY + BORDER_SPRITEBORDER_PADDING +
+                stb.spriteBorderSizes.horizontal.h) > WINDOW_H};
             if (wrongHeight)
             {
 #ifdef LOG
@@ -52,26 +60,30 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
                 while(wrongHeight && rows > EDITOR_TABLEBORDER_MINROW)
                 {
                     --rows;
-                    height = static_cast<int>(rows * sprite_size);
+                    height = (rows * sprite_size);
 #ifdef LOG
                     std::cout << "Adjusted height: " << height << "\n";
 #endif
-                    wrongHeight = (height + leftY + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.horizontal.h) >
-                                  bs.window_h;
+                    wrongHeight = (height + leftY + BORDER_SPRITEBORDER_PADDING +
+                        stb.spriteBorderSizes.horizontal.h) > WINDOW_H;
                 }
             }
 
+            // Устанавливаем рамку редактора
             border = {leftX, leftY, width, height};
-            // При горизонтальной ориентации спрайтбордера, он находится
-            // ПОД рамкой редактора
+
             break;
         }
         case ESpriteBorderOrientation::VERTICAL:
         {
-            width = static_cast<int>(cols * sprite_size);
-            height = static_cast<int>(rows * sprite_size);
-            bool wrongWidth{(width + leftX + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.vertical.w) >
-                            bs.window_w};
+            // Ширина рамки редактора
+            width = (cols * sprite_size);
+
+            // Высота рамки редактора
+            height = (rows * sprite_size);
+
+            bool wrongWidth{(width + leftX + BORDER_SPRITEBORDER_PADDING + 
+                stb.spriteBorderSizes.vertical.w) > WINDOW_W};
             if (wrongWidth)
             {
 #ifdef LOG
@@ -81,12 +93,12 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
                 while (wrongWidth && cols > EDITOR_TABLEBORDER_MINCOLS)
                 {
                     --cols;
-                    width = static_cast<int>(cols * sprite_size);
-                    wrongWidth = (width + leftX + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.vertical.w) >
-                                 bs.window_w;
+                    width = (cols * sprite_size);
+                    wrongWidth = (width + leftX + BORDER_SPRITEBORDER_PADDING +
+                        stb.spriteBorderSizes.vertical.w) > WINDOW_W;
                 }
             }
-            bool wrongHeight{height > bs.window_h};
+            bool wrongHeight{height > WINDOW_H};
             if (wrongHeight)
             {
                 #ifdef LOG
@@ -96,10 +108,12 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
                 while (wrongHeight && rows > EDITOR_TABLEBORDER_MINROW)
                 {
                     --rows;
-                    height = static_cast<int>(rows * sprite_size);
-                    wrongHeight = height > bs.window_h;
+                    height = (rows * sprite_size);
+                    wrongHeight = height > WINDOW_H;
                 }
             }
+
+            // Устанавливаем рамку редактора
             border = {leftX, leftY, width, height};
             break;
         }
@@ -110,17 +124,20 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
 }
 
 EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
-    USpriteBorderSizes spriteBorder,
-    int rows, int cols, bool isActive)
+                         SpriteTableBorderType& stb,
+                         int rows,
+                         int cols,
+                         bool isActive)
 {
     thisTableIsActive = isActive;
-    BorderStuff bs{};
-    bs.spriteBorder = spriteBorder;
-    bs.orientation = sbOrientation;
-    bs.window_w = WINDOW_W;
-    bs.window_h = WINDOW_H;
+    //BorderStuff bs{};
+    // получаем уже известные размеры рамки спрайтбордера
+    //stb.spriteBorderSizes = spriteTableBorderSizes;
+    //stb..orientation = sbOrientation;
+    //stb.spriteBorderSizes.window_w = WINDOW_W;
+    //bs.window_h = WINDOW_H;
     tableBorder = new (std::nothrow) 
-        EditorTableBorder(bs, rows, cols, SPRITE_SIZE);
+        EditorTableBorder(stb, rows, cols, SPRITE_SIZE);
     if (!tableBorder)
     {
 #ifdef LOG
@@ -143,28 +160,30 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         {
             // При горизонтальной ориентации спрайтбордера, 
             // стартовая позиция таблицы спрайтов - ПОД рамкой редактора
-            spriteBorder.horizontal.x = tableBorder->GetBorder().x;
-            spriteBorder.horizontal.y = tableBorder->GetBorder().y +
+            stb.spriteBorderSizes.horizontal.x = tableBorder->GetBorder().x;
+            stb.spriteBorderSizes.horizontal.y = tableBorder->GetBorder().y +
                                          tableBorder->GetBorder().h +
                                          BORDER_SPRITEBORDER_PADDING;
-            madeSpriteBorder.x = spriteBorder.horizontal.x;
-            madeSpriteBorder.y = spriteBorder.horizontal.y;
-            madeSpriteBorder.w = spriteBorder.horizontal.w;
-            madeSpriteBorder.h = spriteBorder.horizontal.h;
+            //madeSpriteBorder.x = spriteBorder.horizontal.x;
+            //madeSpriteBorder.y = spriteBorder.horizontal.y;
+            //madeSpriteBorder.w = spriteBorder.horizontal.w;
+            //madeSpriteBorder.h = spriteBorder.horizontal.h;
+            stb.spriteBorderRect = stb.spriteBorderSizes.horizontal;
             break;
         }
         case ESpriteBorderOrientation::VERTICAL:
         {
             // При вертикальной ориентации спрайтбордера, 
             // стартовая позиция таблицы спрайтов - СПРАВА от рамки редактора
-            spriteBorder.vertical.x = tableBorder->GetBorder().x +
+            stb.spriteBorderSizes.vertical.x = tableBorder->GetBorder().x +
                                          tableBorder->GetBorder().w +
                                          BORDER_SPRITEBORDER_PADDING;
-            spriteBorder.vertical.y = tableBorder->GetBorder().y;
-            madeSpriteBorder.x = spriteBorder.vertical.x;
-            madeSpriteBorder.y = spriteBorder.vertical.y;
-            madeSpriteBorder.w = spriteBorder.vertical.w;
-            madeSpriteBorder.h = spriteBorder.vertical.h;
+            stb.spriteBorderSizes.vertical.y = tableBorder->GetBorder().y;
+            //madeSpriteBorder.x = spriteBorder.vertical.x;
+            //madeSpriteBorder.y = spriteBorder.vertical.y;
+            //madeSpriteBorder.w = spriteBorder.vertical.w;
+            //madeSpriteBorder.h = spriteBorder.vertical.h;
+            stb.spriteBorderRect = stb.spriteBorderSizes.vertical;
             break;
         }
         default:

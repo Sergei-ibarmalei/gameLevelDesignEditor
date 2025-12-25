@@ -18,14 +18,14 @@ enum class ESpriteBorderOrientation
     VERTICAL,
 };
 
-union USpriteBorderSizes
-{
-    SDL_Rect horizontal;
-    SDL_Rect vertical;
-} spriteBorderSizes;
-
 struct SpriteTableBorderType
 {
+    union USpriteBorderSizes
+    {
+        SDL_FRect horizontal;
+        SDL_FRect vertical;
+    } spriteBorderSizes;
+
     float xSpriteMiddle{0.0f};
     float ySpriteMiddle{0.0f};
     float xSpriteFirst{0.0f};
@@ -33,7 +33,7 @@ struct SpriteTableBorderType
 
     SDL_Color activeBorderColor{255, 0, 0, 255};
     SDL_Color inactiveBorderColor{100, 100, 100, 255};
-    SDL_Rect spriteBorderRect;
+    SDL_FRect spriteBorderRect;
     ESpriteBorderOrientation orientation;
     bool isActive{false};
 };
@@ -68,7 +68,7 @@ constexpr int MIDDLE_INDEX{2};
 // constexpr SDL_FRect BORDER{BORDER_LEFTX, BORDER_LEFTY, BORDER_W, BORDER_H};
 //
 // constexpr float XSPRITE_FIRST{BORDER.x + PADDING};
-//constexpr float XSPRITE_MIDDLE{BORDER.x + (2 * SPRITE_SIZE) + (3 * PADDING)};
+// constexpr float XSPRITE_MIDDLE{BORDER.x + (2 * SPRITE_SIZE) + (3 * PADDING)};
 // constexpr float YSPRITE_FIRST{BORDER.y + PADDING};
 // float YSPRITE_MIDDLE{BORDER.y + (2 * SPRITE_SIZE) + (3 * PADDING)};
 //

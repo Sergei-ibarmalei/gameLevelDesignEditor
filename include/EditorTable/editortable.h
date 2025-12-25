@@ -9,35 +9,36 @@
 
 constexpr int EDITOR_TABLEBORDER_MINROW{1};
 constexpr int EDITOR_TABLEBORDER_MINCOLS{1};
-constexpr int EDITOR_TABLEBORDER_LEFTX {10};
-constexpr int EDITOR_TABLEBORDER_LEFTY{10};
+constexpr float EDITOR_TABLEBORDER_LEFTX{10.f};
+constexpr float EDITOR_TABLEBORDER_LEFTY{10.f};
 
-struct BorderStuff
-{
-    USpriteBorderSizes spriteBorder;
-    ESpriteBorderOrientation orientation;
-    int window_w;
-    int window_h;
-};
+//struct BorderStuff
+//{
+//    USpriteBorderSizes spriteTableBorderSizes;
+//    ESpriteBorderOrientation orientation;
+//    int window_w; // размеры рабочего окна по ширине
+//    int window_h; // размеры рабочего окна по высоте
+//};
 
+// Рамка редактора
 struct EditorTableBorder
 {
-    int leftX{EDITOR_TABLEBORDER_LEFTX};
-    int leftY{EDITOR_TABLEBORDER_LEFTY};
-    int width{0};
-    int height{0};
+    float leftX{EDITOR_TABLEBORDER_LEFTX};
+    float leftY{EDITOR_TABLEBORDER_LEFTY};
+    float width{0};
+    float height{0};
     bool init{true};
     bool active{false};
-    SDL_Rect border{};
+    SDL_FRect border{};
 
-    EditorTableBorder(BorderStuff& bs,
+    EditorTableBorder(SpriteTableBorderType& stb,
                       int rows = EDITOR_TABLEBORDER_MINROW,
                       int cols = EDITOR_TABLEBORDER_MINCOLS,
                       float sprite_size = SPRITE_SIZE);
     bool Status() const { return init; }
     bool IsActive() const { return active; }
     void SetActive(bool a) { active = a; }
-    const SDL_Rect& GetBorder() const { return border; }
+    const SDL_FRect& GetBorder() const { return border; }
 };
 
 class EditorTable
@@ -45,13 +46,13 @@ class EditorTable
   private:
     bool init{true};
     bool thisTableIsActive{false};
-    //SDL_Point spriteTableStartPosition{0, 0};
+    // SDL_Point spriteTableStartPosition{0, 0};
     EditorTableBorder* tableBorder{nullptr};
-    SDL_Rect madeSpriteBorder{};
+    //SDL_FRect fullMadeSpriteTableBorder{};
 
   public:
     EditorTable(ESpriteBorderOrientation sbOrientation,
-                USpriteBorderSizes spriteBorderSizes,
+                SpriteTableBorderType& stb,
                 int rows,
                 int cols,
                 bool isActive = true);
@@ -60,12 +61,10 @@ class EditorTable
     EditorTable& operator=(const EditorTable&) = delete;
     EditorTable(EditorTable&&) = delete;
     bool Status() const { return init; }
-    const SDL_Rect& GetTableBorder() const
+    const SDL_FRect& GetTableBorder() const
     {
-        if (tableBorder)
             return tableBorder->GetBorder();
-        return SDL_Rect{};
     }
-    //const SDL_Point& GetSpriteTableStartPosition() const { return spriteTableStartPosition; }
-    SDL_Rect GetMadeSpriteBorder() const { return madeSpriteBorder; }
+    // const SDL_Point& GetSpriteTableStartPosition() const { return spriteTableStartPosition; }
+    //const SDL_FRect& GetMadeSpriteTableBorder() const { return fullMadeSpriteTableBorder; }
 };
