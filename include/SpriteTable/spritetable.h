@@ -112,7 +112,9 @@ class SpriteTable
   private:
     bool init{true};
     bool initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder);
-    void firstInit(const std::vector<SDL_Rect>& atlasRects, SpriteTableBorderType& spriteBorder);
+    void firstInit(const std::vector<SDL_Rect>& atlasRects, 
+        SpriteTableBorderType& spriteBorder,
+        const size_t spriteTableCountTotal);
     Mechanic mechanic;
     Atlas* atlas{nullptr};
 

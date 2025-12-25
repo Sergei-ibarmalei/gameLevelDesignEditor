@@ -39,7 +39,7 @@ struct SpriteTableBorderType
 };
 
 constexpr size_t SPRITE_TABLE_COUNT_VISIBLES{5};
-constexpr size_t SPRITE_TABLE_COUNT_TOTAL{6};
+//constexpr size_t SPRITE_TABLE_COUNT_TOTAL{6};
 constexpr float SPRITE_SIZE{64.0f};
 constexpr int SPRITE_PADDING{2};
 constexpr float PADDING{32.0};

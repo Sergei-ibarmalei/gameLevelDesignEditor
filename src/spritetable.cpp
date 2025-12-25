@@ -224,7 +224,7 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
 #endif
         return false;
     }
-    firstInit(atlas->GetSourceRects(), spriteBorder);
+    firstInit(atlas->GetSourceRects(), spriteBorder, spriteTableCountTotal);
     mechanic.chRect.Init(mechanic.vectorSprite[0].transform.GetRect());
     mechanic.index = 0;
 
@@ -232,13 +232,14 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
 }
 
 void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects,
-                            SpriteTableBorderType& spriteBorder)
+                            SpriteTableBorderType& spriteBorder,
+                            const size_t spriteTableCountTotal)
 {
     auto startX = static_cast<float>(spriteBorder.spriteBorderRect.x + PADDING);
     auto startY = static_cast<float>(spriteBorder.spriteBorderRect.y + PADDING);
 
-    mechanic.vectorSprite.reserve(SPRITE_TABLE_COUNT_TOTAL);
-    for (size_t i = 0; i < SPRITE_TABLE_COUNT_TOTAL; ++i)
+    mechanic.vectorSprite.reserve(spriteTableCountTotal);
+    for (size_t i = 0; i < spriteTableCountTotal; ++i)
     {
 
         if (spriteBorder.orientation == ESpriteBorderOrientation::HORIZONTAL)

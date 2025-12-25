@@ -91,7 +91,7 @@ EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
                                   stb.spriteBorderSizes.vertical.w) > WINDOW_W;
                 }
             }
-            bool wrongHeight{height > WINDOW_H};
+            bool wrongHeight{height + leftY > WINDOW_H};
             if (wrongHeight)
             {
 #ifdef LOG
@@ -102,7 +102,7 @@ EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
                 {
                     --rows;
                     height = (rows * sprite_size);
-                    wrongHeight = height > WINDOW_H;
+                    wrongHeight = height + leftY > WINDOW_H;
                 }
             }
 
