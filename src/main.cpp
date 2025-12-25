@@ -4,7 +4,7 @@
 int main(int, char**)
 {
     App app;
-    if (!app.init(WINDOW_W, WINDOW_H))
+    if (!app.initSdl(WINDOW_W, WINDOW_H))
         return 1;
     app.run();
     app.shutdown();

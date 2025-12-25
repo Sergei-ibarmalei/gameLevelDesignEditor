@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <memory>
 #include "SpriteTable/spritetable.h"
 #include "EditorTable/editortable.h"
 #include "position.h"
@@ -9,8 +10,13 @@
 class App
 {
   public:
+    ESpriteBorderOrientation spriteBorderOrientation;
     SpriteTableBorderType spriteTableBorder;
-    bool init(int w, int h);
+    std::unique_ptr<EditorTable> editorTable;
+    std::unique_ptr<SpriteTable> spriteTable;
+
+    bool initSdl(int w, int h);
+    bool initEditorTableAndSpriteTable();
     void run();
     void shutdown();
     void defineSpriteBorderSizes(ESpriteBorderOrientation orientation,
