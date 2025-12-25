@@ -41,7 +41,7 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
                 }
                 
             }
-            bool wrongHeight {(height + leftY + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.h) >
+            bool wrongHeight {(height + leftY + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.horizontal.h) >
                              bs.window_h};
             if (wrongHeight)
             {
@@ -56,19 +56,21 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
 #ifdef LOG
                     std::cout << "Adjusted height: " << height << "\n";
 #endif
-                    wrongHeight = (height + leftY + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.h) >
+                    wrongHeight = (height + leftY + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.horizontal.h) >
                                   bs.window_h;
                 }
             }
 
             border = {leftX, leftY, width, height};
+            // При горизонтальной ориентации спрайтбордера, он находится
+            // ПОД рамкой редактора
             break;
         }
         case ESpriteBorderOrientation::VERTICAL:
         {
             width = static_cast<int>(cols * sprite_size);
             height = static_cast<int>(rows * sprite_size);
-            bool wrongWidth{(width + leftX + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.w) >
+            bool wrongWidth{(width + leftX + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.vertical.w) >
                             bs.window_w};
             if (wrongWidth)
             {
@@ -80,7 +82,7 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
                 {
                     --cols;
                     width = static_cast<int>(cols * sprite_size);
-                    wrongWidth = (width + leftX + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.w) >
+                    wrongWidth = (width + leftX + BORDER_SPRITEBORDER_PADDING + bs.spriteBorder.vertical.w) >
                                  bs.window_w;
                 }
             }
@@ -108,7 +110,7 @@ EditorTableBorder::EditorTableBorder(BorderStuff& bs, int rows, int cols, float 
 }
 
 EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
-    const SDL_Rect& spriteBorder,
+    USpriteBorderSizes spriteBorder,
     int rows, int cols, bool isActive)
 {
     thisTableIsActive = isActive;
@@ -135,10 +137,50 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         init = false;
         return;
     }
+    switch (sbOrientation)
+    {
+        case ESpriteBorderOrientation::HORIZONTAL:
+        {
+            // При горизонтальной ориентации спрайтбордера, 
+            // стартовая позиция таблицы спрайтов - ПОД рамкой редактора
+            spriteBorder.horizontal.x = tableBorder->GetBorder().x;
+            spriteBorder.horizontal.y = tableBorder->GetBorder().y +
+                                         tableBorder->GetBorder().h +
+                                         BORDER_SPRITEBORDER_PADDING;
+            madeSpriteBorder.x = spriteBorder.horizontal.x;
+            madeSpriteBorder.y = spriteBorder.horizontal.y;
+            madeSpriteBorder.w = spriteBorder.horizontal.w;
+            madeSpriteBorder.h = spriteBorder.horizontal.h;
+            break;
+        }
+        case ESpriteBorderOrientation::VERTICAL:
+        {
+            // При вертикальной ориентации спрайтбордера, 
+            // стартовая позиция таблицы спрайтов - СПРАВА от рамки редактора
+            spriteBorder.vertical.x = tableBorder->GetBorder().x +
+                                         tableBorder->GetBorder().w +
+                                         BORDER_SPRITEBORDER_PADDING;
+            spriteBorder.vertical.y = tableBorder->GetBorder().y;
+            madeSpriteBorder.x = spriteBorder.vertical.x;
+            madeSpriteBorder.y = spriteBorder.vertical.y;
+            madeSpriteBorder.w = spriteBorder.vertical.w;
+            madeSpriteBorder.h = spriteBorder.vertical.h;
+            break;
+        }
+        default:
+        {
+        }
+    }
 
 
 
 }
+
+//SDL_Rect EditorTable::madeSpriteBorder()
+//{
+//    SDL_Rect sb{};
+//    sb.x = bs.sprite
+//}
 
 EditorTable::~EditorTable()
 {

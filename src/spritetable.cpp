@@ -103,7 +103,6 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
                 tmpSurface->format->BytesPerPixel);
 #endif
 
-
         maxHeight = std::max(maxHeight, tmpSurface->h);
         destRect.x = destRectX;
         destRect.y = 0;
@@ -117,7 +116,6 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
     }
 
     totalWidth = destRectX - SPRITE_PADDING;
-
 
     // Создаем итоговую поверхность
     SDL_Surface* tmpAtlasSurface =
@@ -180,7 +178,7 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
     return true;
 }
 
-SpriteTable::SpriteTable(SDL_Renderer* r)
+SpriteTable::SpriteTable(SDL_Renderer* r, SpriteBorderType& spriteBorder)
 {
     if (!r)
     {
@@ -190,7 +188,7 @@ SpriteTable::SpriteTable(SDL_Renderer* r)
         init = false;
         return;
     }
-    init = initSpriteTable(r);
+    init = initSpriteTable(r, spriteBorder);
 }
 
 SpriteTable::~SpriteTable()
@@ -199,7 +197,7 @@ SpriteTable::~SpriteTable()
     atlas = nullptr;
 }
 
-bool SpriteTable::initSpriteTable(SDL_Renderer* r)
+bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteBorderType& spriteBorder)
 {
     atlas = new (std::nothrow) Atlas(r, SPRITE_TABLE_COUNT_TOTAL, filePath);
     if (!atlas)
@@ -217,40 +215,81 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r)
 #endif
         return false;
     }
-    firstInit(atlas->GetSourceRects());
+    firstInit(atlas->GetSourceRects(), spriteBorder);
     mechanic.chRect.Init(mechanic.vectorSprite[0].transform.GetRect());
     mechanic.index = 0;
 
     return true;
 }
 
-void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects)
+void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects, SpriteBorderType& spriteBorder)
 {
-    auto startX = BORDER.x + PADDING;
-    auto startY = BORDER.y + PADDING;
+    // auto startX = BORDER.x + PADDING;
+    // auto startY = BORDER.y + PADDING;
+    auto startX = static_cast<float>(spriteBorder.spriteBorderRect.x + PADDING);
+    auto startY = static_cast<float>(spriteBorder.spriteBorderRect.y + PADDING);
+
     mechanic.vectorSprite.reserve(SPRITE_TABLE_COUNT_TOTAL);
     for (size_t i = 0; i < SPRITE_TABLE_COUNT_TOTAL; ++i)
     {
-#ifdef POS_HORIZONTAL
-        auto spriteX = startX + i * (SPRITE_SIZE + PADDING);
-        Sprite s{atlasRects[i], spriteX, startY};
-#else
-        auto spriteY = startY + i * (SPRITE_SIZE + PADDING);
-        Sprite s{atlasRects[i], startX, spriteY};
-#endif
-        mechanic.vectorSprite.emplace_back(s);
+        // #ifdef POS_HORIZONTAL
+        //         auto spriteX = startX + i * (SPRITE_SIZE + PADDING);
+        //         Sprite s{atlasRects[i], spriteX, startY};
+        // #else
+        //         auto spriteY = startY + i * (SPRITE_SIZE + PADDING);
+        //         Sprite s{atlasRects[i], startX, spriteY};
+        // #endif
+        if (spriteBorder.orientation == ESpriteBorderOrientation::HORIZONTAL)
+        {
+            auto spriteX = startX + i * (SPRITE_SIZE + PADDING);
+            Sprite s{atlasRects[i], spriteX, startY};
+            mechanic.vectorSprite.emplace_back(s);
+        }
+        else
+        {
+            auto spriteY = startY + i * (SPRITE_SIZE + PADDING);
+            Sprite s{atlasRects[i], startX, spriteY};
+            mechanic.vectorSprite.emplace_back(s);
+        }
+        // mechanic.vectorSprite.emplace_back(s);
     }
 }
 
-void SpriteTable::CheckMoveLogic() //-
+static bool white_at_left{false};
+static bool white_at_right{false};
+static bool white_at_top{false};
+static bool white_at_bottom{false};
+static bool last_sprite_at_the_middle{false};
+
+
+void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
 {
-#ifdef POS_HORIZONTAL
-    bool white_at_left{mechanic.index < 0};
-    bool white_at_right{mechanic.index > MIDDLE_INDEX};
-#else
-    bool white_at_top{mechanic.index < 0};
-    bool white_at_bottom{mechanic.index > MIDDLE_INDEX};
-#endif
+//#ifdef POS_HORIZONTAL
+//    bool white_at_left{mechanic.index < 0};
+//    bool white_at_right{mechanic.index > MIDDLE_INDEX};
+//#else
+//    bool white_at_top{mechanic.index < 0};
+//    bool white_at_bottom{mechanic.index > MIDDLE_INDEX};
+//#endif
+
+    switch (spriteTable.orientation)
+    {
+        case ESpriteBorderOrientation::HORIZONTAL:
+        {
+            white_at_left = mechanic.index < 0;
+            white_at_right = mechanic.index > MIDDLE_INDEX;
+            break;
+        }
+        case ESpriteBorderOrientation::VERTICAL:
+        {
+            white_at_top = mechanic.index < 0;
+            white_at_bottom = mechanic.index > MIDDLE_INDEX;
+            break;
+        }
+        default:
+        {
+        }
+    }
     bool we_can_move_white{mechanic.logic.moves_white};
     bool we_can_move_sprites{mechanic.logic.moves_sprites};
 
@@ -282,11 +321,25 @@ void SpriteTable::CheckMoveLogic() //-
     if (we_can_move_sprites)
     {
         bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
-#ifdef POS_HORIZONTAL
-        bool last_sprite_at_the_middle{mechanic.vectorSprite.back() == XSPRITE_MIDDLE};
-#else
-        bool last_sprite_at_the_middle{mechanic.vectorSprite.back() == YSPRITE_MIDDLE};
-#endif
+//#ifdef POS_HORIZONTAL
+//        bool last_sprite_at_the_middle{mechanic.vectorSprite.back() == XSPRITE_MIDDLE};
+//#else
+//        bool last_sprite_at_the_middle{mechanic.vectorSprite.back() == YSPRITE_MIDDLE};
+//#endif
+        switch (spriteTable.orientation)
+        {
+            [[likely]] case ESpriteBorderOrientation::HORIZONTAL:
+            {
+                last_sprite_at_the_middle = mechanic.vectorSprite.back() == spriteTable.xSpriteMiddle;
+                break;
+            }
+            case ESpriteBorderOrientation::VERTICAL:
+            {
+                last_sprite_at_the_middle = mechanic.vectorSprite.back() == spriteTable.ySpriteMiddle;
+                break;
+            }
+            default: {}
+        }
         if (white_at_the_middle && last_sprite_at_the_middle)
         {
             mechanic.logic.moves_sprites = false;
@@ -351,30 +404,32 @@ void SpriteTable::moveSprites(float delta) //-
 }
 
 #ifdef POS_HORIZONTAL
-bool SpriteTable::Cant_move_left() //-
+bool SpriteTable::Cant_move_left(SpriteTableBorderType& spriteTableBorder) //-
 {
     bool white_at_the_left{mechanic.index == 0};
-    bool sprites_at_the_left{mechanic.vectorSprite.front() == XSPRITE_FIRST};
+    bool sprites_at_the_left{mechanic.vectorSprite.front() == spriteTableBorder.xSpriteFirst};//XSPRITE_FIRST};
     return white_at_the_left && sprites_at_the_left;
 }
 
-bool SpriteTable::Cant_move_right() //-
+bool SpriteTable::Cant_move_right(SpriteTableBorderType& spriteTableBorder) //-
 {
     bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
-    bool srpites_at_right_end{mechanic.vectorSprite.back() == XSPRITE_MIDDLE};
+    bool srpites_at_right_end{mechanic.vectorSprite.back() == spriteTableBorder.xSpriteMiddle};//XSPRITE_MIDDLE};
     return white_at_the_middle && srpites_at_right_end;
 }
 #else
-bool SpriteTable::Cant_move_top()
+bool SpriteTable::Cant_move_top(SpriteTableBorderType& spriteTableBorder)
 {
     bool white_at_the_top{mechanic.index == 0};
-    bool sprites_at_the_top{mechanic.vectorSprite.front() == YSPRITE_FIRST};
+    bool sprites_at_the_top{mechanic.vectorSprite.front() ==
+        spriteTableBorder.ySpriteFirst};// YSPRITE_FIRST};
     return white_at_the_top && sprites_at_the_top;
 }
-bool SpriteTable::Cant_move_bottom()
+bool SpriteTable::Cant_move_bottom(SpriteTableBorderType& spriteTableBorder)
 {
     bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
-    bool srpites_at_bottom_end{mechanic.vectorSprite.back() == YSPRITE_MIDDLE};
+    bool srpites_at_bottom_end{mechanic.vectorSprite.back() == 
+        spriteTableBorder.ySpriteMiddle};//  YSPRITE_MIDDLE};
     return white_at_the_middle && srpites_at_bottom_end;
 }
 #endif

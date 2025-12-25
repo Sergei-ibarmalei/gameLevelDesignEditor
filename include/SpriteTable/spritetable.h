@@ -111,8 +111,8 @@ class SpriteTable
 {
   private:
     bool init{true};
-    bool initSpriteTable(SDL_Renderer* r);
-    void firstInit(const std::vector<SDL_Rect>& atlasRects);
+    bool initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder);
+    void firstInit(const std::vector<SDL_Rect>& atlasRects, SpriteTableBorderType& spriteBorder);
     Mechanic mechanic;
     Atlas* atlas{nullptr};
 
@@ -136,7 +136,7 @@ class SpriteTable
     }
 
   public:
-    SpriteTable(SDL_Renderer* r);
+    SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteTable);
     ~SpriteTable();
     SpriteTable(const SpriteTable&) = delete;
     SpriteTable(SpriteTable&&) = delete;
@@ -149,7 +149,7 @@ class SpriteTable
 
     const SDL_FRect& GetChosenRect() const { return mechanic.chRect.transform.GetRect(); }
     void MovingInSpriteTable(float deltaTime);
-    void CheckMoveLogic(); //-
+    void CheckMoveLogic(SpriteTableBorderType& spriteTableBorder); //-
 
     bool IsMoveProcess() const //-
     {
@@ -167,8 +167,8 @@ class SpriteTable
         mechanic.index += mechanic.sign;
     }
 #ifdef POS_HORIZONTAL
-    bool Cant_move_right(); //-
-    bool Cant_move_left();  //-
+    bool Cant_move_right(SpriteTableBorderType& spriteTableBorder); //-
+    bool Cant_move_left(SpriteTableBorderType& spriteTableBorder);  //-
 
     void ChosenRectIsNotAtLeftEnd() { mechanic.logic.white_at_left_end = false; }
     void ChosenRectIsNotAtRightEnd() //-
@@ -186,8 +186,8 @@ class SpriteTable
         mechanic.logic.move_process = false;
     }
 #else
-    bool Cant_move_bottom();
-    bool Cant_move_top();
+    bool Cant_move_bottom(SpriteTableBorderType& spriteTableBorder);
+    bool Cant_move_top(SpriteTableBorderType& spriteTableBorder);
     void ChosenRectIsNotAtTopEnd() { mechanic.logic.white_at_top_end = false; }
     void ChosenRectIsNotAtBottomEnd() { mechanic.logic.white_at_bottom_end = false; }
     void ChosenRectIsAtBottomEnd()

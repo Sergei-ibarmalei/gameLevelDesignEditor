@@ -1,13 +1,12 @@
 #include "Table/app.h"
 #include <iostream>
 
-static void showBorder(SDL_Renderer* renderer);
+static void showSpriteTableBorder(SDL_Renderer* renderer, SpriteTableBorderType& spriteTableBorder);
 static void showSimpleSpriteVector(SDL_Renderer* renderer,
                                    SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite);
 static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
 static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r);
-
 
 bool App::init(int width, int height)
 {
@@ -58,17 +57,12 @@ bool App::init(int width, int height)
 void App::run()
 {
 #ifdef POS_VERTICAL
-    ESpriteBorderOrientation spriteBorderOrientation =
-        ESpriteBorderOrientation::VERTICAL;
+    ESpriteBorderOrientation spriteBorderOrientation = ESpriteBorderOrientation::VERTICAL;
 #else
-    ESpriteBorderOrientation spriteBorderOrientation = 
-        ESpriteBorderOrientation::HORIZONTAL;
+    ESpriteBorderOrientation spriteBorderOrientation = ESpriteBorderOrientation::HORIZONTAL;
 #endif
-    SpriteTable spriteTable(renderer_);
-    if (!spriteTable.Status())
-        return;
-    EditorTable editorTable(spriteBorderOrientation, BORDER_INT,
-        20, 29,  true);
+    defineSpriteBorderSizes(spriteBorderOrientation);
+    EditorTable editorTable(spriteBorderOrientation, spriteBorderSizes, 20, 29, true);
     if (!editorTable.Status())
     {
 #ifdef LOG
@@ -76,6 +70,45 @@ void App::run()
 #endif
         return;
     }
+//    SDL_Point spriteTableStartPos = editorTable.GetSpriteTableStartPosition();
+//    if (spriteTableStartPos.x == 0 || spriteTableStartPos.y == 0)
+//    {
+//#ifdef LOG
+//        std::cout << "Wrong sprite table start position, abort.\n";
+//#endif
+//        return;
+//    }
+//    SpriteBorderType spriteTableBorder. = editorTable.GetMadeSpriteBorder();
+//    if (spriteTableBorder.w == 0 || spriteTableBorder.h == 0)
+//    {
+//#ifdef LOG
+//        std::cout << "Wrong made sprite border sizes, abort.\n";
+//#endif
+//        return;
+//    }
+    SpriteTableBorderType spriteTableBorder;
+    spriteTableBorder.orientation = spriteBorderOrientation;
+    spriteTableBorder.spriteBorderRect = editorTable.GetMadeSpriteBorder();
+    if (spriteTableBorder.spriteBorderRect.w == 0 ||
+        spriteTableBorder.spriteBorderRect.h == 0)
+    {   
+#ifdef LOG
+        std::cout << "Wrong made sprite border sizes, abort.\n";
+#endif
+        return;
+    }
+    spriteTableBorder.xSpriteMiddle = static_cast<float>(spriteTableBorder.spriteBorderRect.x +
+        (2 * SPRITE_SIZE) + (3 * PADDING));
+    spriteTableBorder.ySpriteMiddle = static_cast<float>(spriteTableBorder.spriteBorderRect.y +
+                                                         (2 * SPRITE_SIZE) + (3 * PADDING));
+    spriteTableBorder.xSpriteFirst =
+        static_cast<float>(spriteTableBorder.spriteBorderRect.x + PADDING);
+    spriteTableBorder.ySpriteFirst =
+        static_cast<float>(spriteTableBorder.spriteBorderRect.y + PADDING);
+
+    SpriteTable spriteTable(renderer_, spriteTableBorder);
+    if (!spriteTable.Status())
+        return;
 
     SDL_Event e;
 
@@ -102,26 +135,26 @@ void App::run()
                         spriteTable.MoveProcessStart();
 
                         spriteTable.ChosenRectIsNotAtLeftEnd();
-                        if (spriteTable.Cant_move_right())
+                        if (spriteTable.Cant_move_right(spriteTableBorder))
                         {
                             spriteTable.ChosenRectIsAtRightEnd();
                             break;
                         }
                         spriteTable.SetDirectrion(EDirection::RIGHT);
-                        spriteTable.CheckMoveLogic();
+                        spriteTable.CheckMoveLogic(spriteTableBorder);
                         break;
                     }
                     case SDLK_LEFT:
                     {
                         spriteTable.MoveProcessStart();
                         spriteTable.ChosenRectIsNotAtRightEnd();
-                        if (spriteTable.Cant_move_left())
+                        if (spriteTable.Cant_move_left(spriteTableBorder))
                         {
                             spriteTable.ChosenRectIsAtLeftEnd();
                             break;
                         }
                         spriteTable.SetDirectrion(EDirection::LEFT);
-                        spriteTable.CheckMoveLogic();
+                        spriteTable.CheckMoveLogic(spriteTableBorder);
                         break;
                     }
                     default:
@@ -166,14 +199,16 @@ void App::run()
         SDL_RenderClear(renderer_);
 
         showEditorTableBorder(renderer_, editorTable.GetTableBorder());
-        //spriteTable.MovingInSpriteTable(deltaTime);
+        // spriteTable.MovingInSpriteTable(deltaTime);
 
-        //SDL_RenderSetClipRect(renderer_, &BORDER_INT);
-        //showSimpleSpriteVector(
-        //    renderer_, spriteTable.AtlasTexture(), spriteTable.MechanicVectorSprite());
-        //SDL_RenderSetClipRect(renderer_, nullptr);
-        //showChosenRect(renderer_, spriteTable.GetChosenRect());
-        //showBorder(renderer_);
+        // SDL_RenderSetClipRect(renderer_, &BORDER_INT);
+        // showSimpleSpriteVector(
+        //     renderer_, spriteTable.AtlasTexture(), spriteTable.MechanicVectorSprite());
+        // SDL_RenderSetClipRect(renderer_, nullptr);
+        // showChosenRect(renderer_, spriteTable.GetChosenRect());
+        // showBorder(renderer_);
+        showSpriteTableBorder(renderer_, spriteTableBorder);
+
 
         SDL_RenderPresent(renderer_);
     }
@@ -195,10 +230,47 @@ void App::shutdown()
     SDL_Quit();
 }
 
-static void showBorder(SDL_Renderer* renderer)
+void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation)
 {
+    switch (orientation)
+    {
+        case ESpriteBorderOrientation::HORIZONTAL:
+        {
+            spriteBorderSizes.horizontal.w = SPRITE_TABLE_COUNT_VISIBLES * SPRITE_SIZE +
+                                             (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING;
+            spriteBorderSizes.horizontal.h = PADDING * 2 + SPRITE_SIZE;
+            break;
+        }
+        case ESpriteBorderOrientation::VERTICAL:
+        {
+            spriteBorderSizes.vertical.w = PADDING * 2 + SPRITE_SIZE;
+            spriteBorderSizes.vertical.h = SPRITE_TABLE_COUNT_VISIBLES * SPRITE_SIZE +
+                                           (SPRITE_TABLE_COUNT_VISIBLES + 1) * PADDING;
+            break;
+        }
+        default:
+        {
+        }
+    }
+}
+
+static void showSpriteTableBorder(SDL_Renderer* renderer, SpriteTableBorderType& spriteTableBorder)
+{
+    if (spriteTableBorder.isActive)
+        SDL_SetRenderDrawColor(renderer,
+                               spriteTableBorder.activeBorderColor.r,
+                               spriteTableBorder.activeBorderColor.g,
+                               spriteTableBorder.activeBorderColor.b,
+                               spriteTableBorder.activeBorderColor.a);
+    else
+        SDL_SetRenderDrawColor(renderer,
+                               spriteTableBorder.inactiveBorderColor.r,
+                               spriteTableBorder.inactiveBorderColor.g,
+                               spriteTableBorder.inactiveBorderColor.b,
+                               spriteTableBorder.inactiveBorderColor.a);
+
     SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 255);
-    SDL_RenderDrawRect(renderer, &BORDER_INT);
+    SDL_RenderDrawRect(renderer, &spriteTableBorder.spriteBorderRect);
 }
 
 static void showSimpleSpriteVector(SDL_Renderer* renderer,

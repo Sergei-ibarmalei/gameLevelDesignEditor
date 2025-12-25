@@ -6,9 +6,12 @@
 #include "EditorTable/editortable.h"
 #include "position.h"
 
+
+
 class App
 {
   public:
+    USpriteBorderSizes spriteBorderSizes;
     bool init(int w, int h);
     void run();
     void shutdown();
@@ -21,4 +24,6 @@ class App
     Uint32 lastTime{0};
     Uint32 currentTime{0};
     float deltaTime{0.0f};
-};
+
+    void defineSpriteBorderSizes(ESpriteBorderOrientation orientation);
+}
