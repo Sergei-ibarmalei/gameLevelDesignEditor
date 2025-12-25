@@ -22,8 +22,8 @@ struct SpriteTableBorderType
 {
     union USpriteBorderSizes
     {
-        SDL_FRect horizontal;
-        SDL_FRect vertical;
+        SDL_Rect horizontal;
+        SDL_Rect vertical;
     } spriteBorderSizes;
 
     float xSpriteMiddle{0.0f};
@@ -33,7 +33,7 @@ struct SpriteTableBorderType
 
     SDL_Color activeBorderColor{255, 0, 0, 255};
     SDL_Color inactiveBorderColor{100, 100, 100, 255};
-    SDL_FRect spriteBorderRect;
+    SDL_Rect spriteBorderRect;
     ESpriteBorderOrientation orientation;
     bool isActive{false};
 };

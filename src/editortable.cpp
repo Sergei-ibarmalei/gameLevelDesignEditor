@@ -152,10 +152,10 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         {
             // При горизонтальной ориентации спрайтбордера, 
             // стартовая позиция таблицы спрайтов - ПОД рамкой редактора
-            stb.spriteBorderSizes.horizontal.x = tableBorder->GetBorder().x;
-            stb.spriteBorderSizes.horizontal.y = tableBorder->GetBorder().y +
+            stb.spriteBorderSizes.horizontal.x = static_cast<int>(tableBorder->GetBorder().x);
+            stb.spriteBorderSizes.horizontal.y = static_cast<int>(tableBorder->GetBorder().y +
                                          tableBorder->GetBorder().h +
-                                         BORDER_SPRITEBORDER_PADDING;
+                                         BORDER_SPRITEBORDER_PADDING);
             stb.spriteBorderRect = stb.spriteBorderSizes.horizontal;
             break;
         }
@@ -163,10 +163,10 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         {
             // При вертикальной ориентации спрайтбордера, 
             // стартовая позиция таблицы спрайтов - СПРАВА от рамки редактора
-            stb.spriteBorderSizes.vertical.x = tableBorder->GetBorder().x +
+            stb.spriteBorderSizes.vertical.x = static_cast<int>(tableBorder->GetBorder().x +
                                          tableBorder->GetBorder().w +
-                                         BORDER_SPRITEBORDER_PADDING;
-            stb.spriteBorderSizes.vertical.y = tableBorder->GetBorder().y;
+                                         BORDER_SPRITEBORDER_PADDING);
+            stb.spriteBorderSizes.vertical.y = static_cast<int>(tableBorder->GetBorder().y);
             stb.spriteBorderRect = stb.spriteBorderSizes.vertical;
             break;
         }
