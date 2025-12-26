@@ -21,6 +21,7 @@ struct EditorTableBorder
     float height{0};
     bool init{true};
     bool active{false};
+    SDL_Point theRealRowsAndCols {0, 0};
     SDL_FRect border{};
     SDL_Rect intBorder{};
 
@@ -33,6 +34,7 @@ struct EditorTableBorder
     void SetActive(bool a) { active = a; }
     const SDL_FRect& GetBorder() const { return border; }
     const SDL_Rect& GetIntBorder() const { return intBorder; }
+    const SDL_Point GetTheRealRC() const {return theRealRowsAndCols;}
 };
 
 class EditorTable
@@ -61,5 +63,7 @@ class EditorTable
     }
     const SDL_Rect& GetIntTableBorder() const
     {
-            return tableBorder->GetIntBorder(); }
+            return tableBorder->GetIntBorder(); 
+    }
+    const SDL_Point& GetRealRowsColsEditorTable() const {return tableBorder->GetTheRealRC(); }
 };

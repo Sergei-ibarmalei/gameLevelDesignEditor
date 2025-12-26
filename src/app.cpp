@@ -11,6 +11,7 @@ static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
 // static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r);
 static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r, const SDL_Color c);
 static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma);
+static void ShowHelperDots(SDL_Renderer* renderer, SDL_Texture* t, const std::vector<SDL_Rect>& s);
 
 static MouseActionType mouseAction;
 static Uint32 takeMouseAction;
@@ -109,6 +110,8 @@ void App::run()
     if (!initEditorTableAndSpriteTable())
         return;
     editorTableBorder = editorTable->GetIntTableBorder();
+    HelperDot helperDot(renderer_, editorTableBorder, editorTable->GetRealRowsColsEditorTable());
+    if (!helperDot.Status()) return;
 
     SDL_Event e;
 
@@ -237,6 +240,8 @@ void App::run()
         showSpriteTableBorder(
             renderer_, spriteTableBorder, spriteTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
 
+        ShowHelperDots(renderer_, helperDot.GetHelperDotTexture(), helperDot.GetHelperSourceRects());
+
         SDL_RenderPresent(renderer_);
     }
 }
@@ -282,6 +287,16 @@ void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTa
         default:
         {
         }
+    }
+}
+
+static void ShowHelperDots(SDL_Renderer* renderer, SDL_Texture* t, const std::vector<SDL_Rect>& s)
+{
+    SDL_Rect source {0, 0, HELPDOT_SPRITESIZE, HELPERDOT_SPRITESIZE};
+
+    for (const auto& r : s)
+    {
+        SDL_RenderCopy(renderer, t, &source, &r);
     }
 }
 

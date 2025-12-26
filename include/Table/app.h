@@ -5,6 +5,7 @@
 #include <memory>
 #include "SpriteTable/spritetable.h"
 #include "EditorTable/editortable.h"
+#include "Helper/helperdot.h"
 #include "position.h"
 
 struct MouseActionType

@@ -1,9 +1,11 @@
 #include "Helper/helperdot.h"
 
-static const char* helperDotPath = "assets/helperDot.png";
+static const char* helperDotPath = "assets/helperDot_1.png";
 
 
-HelperDot::HelperDot(SDL_Renderer* renderer)
+HelperDot::HelperDot(SDL_Renderer* renderer,
+        const SDL_Rect& border,
+        const SDL_Point& realRowsColsNomber)
 {
     if (!renderer)
     {
@@ -15,6 +17,10 @@ HelperDot::HelperDot(SDL_Renderer* renderer)
     }
 
     init = makeTexture(renderer);
+    if (!init) return;
+    initAllHelperDotsDestRects(border, realRowsColsNomber);
+ 
+
 
 }
 
@@ -76,8 +82,26 @@ HelperDot::~HelperDot()
     }
 }
 
-void HelperDot::InitAllHelperDotsDestRects(const SDL_Rect& border,
-    int rows, int cols)
+void HelperDot::initAllHelperDotsDestRects(const SDL_Rect& border,
+    const SDL_Point& realRowsColsNomber)
 {
+    int startx = border.x + static_cast<int>(SPRITE_SIZE);
+    int starty = border.y + static_cast<int>(SPRITE_SIZE);
+
+    
+    size_t dotRows {static_cast<size_t>(realRowsColsNomber.y - 1)};
+    size_t dotCols {static_cast<size_t>(realRowsColsNomber.x - 1)};
+    
+    allHelperDotsDestRects.reserve(dotRows * dotCols);
+    for (size_t r = 0; r < dotRows; r++)
+    {
+        for (size_t c = 0; c < dotCols; c++)
+        {
+            allHelperDotsDestRects.emplace_back(startx + static_cast<int>(c * HELPDOT_SPRITESIZE) -
+                HELPDOT_SPRITESIZE / 2, starty + static_cast<int>(r * HELPDOT_SPRITESIZE) -
+                HELPDOT_SPRITESIZE / 2, HELPDOT_SPRITESIZE, HELPDOT_SPRITESIZE);
+        }
+    }
+    
 
 }

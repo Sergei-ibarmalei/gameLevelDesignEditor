@@ -43,6 +43,7 @@ constexpr SDL_Color INACTIVE_COLOR{100, 100, 100, 255};
 constexpr size_t SPRITE_TABLE_COUNT_VISIBLES{5};
 
 constexpr float SPRITE_SIZE{64.0f};
+constexpr int HELPDOT_SPRITESIZE {4};
 
 // SPRITE_PADDING - отступ внутри спрайта для отрисовки выбранного прямоугольника
 constexpr int SPRITE_PADDING{2};

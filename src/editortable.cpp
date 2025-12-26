@@ -70,6 +70,10 @@ EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
                 }
             }
 
+            // Реальное количество rows cols нам необходимо для расчетов 
+            // класса helperdot
+            theRealRowsAndCols.x = cols;
+            theRealRowsAndCols.y = rows;
             break;
         }
         case ESpriteBorderOrientation::VERTICAL:
@@ -105,7 +109,8 @@ EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
                     wrongHeight = height + leftY > WINDOW_H;
                 }
             }
-
+            theRealRowsAndCols.x = cols;
+            theRealRowsAndCols.y = rows;
             break;
         }
         default:

@@ -15,8 +15,12 @@ private:
     std::vector<SDL_Rect> allHelperDotsDestRects;
     SDL_Texture* helperDotTexture {nullptr};
 
+    void initAllHelperDotsDestRects(const SDL_Rect& border, 
+        const SDL_Point& realRowsColsNomber);
+
 public:
-    HelperDot(SDL_Renderer* render);
+    HelperDot(SDL_Renderer* render, const SDL_Rect& border, 
+        const SDL_Point& realRowsColsNomber);
     ~HelperDot();
     HelperDot(const HelperDot&) = delete;
     HelperDot& operator=(const HelperDot&) = delete;
@@ -25,5 +29,7 @@ public:
 
     bool Status() const {return init;}
     SDL_Texture* GetHelperDotTexture() const {return helperDotTexture;}
-    void InitAllHelperDotsDestRects(const SDL_Rect& border, int rows, int cols);
+    const std::vector<SDL_Rect>& GetHelperSourceRects() const {return allHelperDotsDestRects;}
+    SDL_Texture* GetTexture() const {return helperDotTexture;}
+  
 };
