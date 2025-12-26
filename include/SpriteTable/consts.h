@@ -38,6 +38,9 @@ struct SpriteTableBorderType
     bool isActive{false};
 };
 
+constexpr SDL_Color ACTIVE_COLOR{255, 0, 0, 255};
+constexpr SDL_Color INACTIVE_COLOR{100, 100, 100, 255};
+
 constexpr size_t SPRITE_TABLE_COUNT_VISIBLES{5};
 //constexpr size_t SPRITE_TABLE_COUNT_TOTAL{6};
 constexpr float SPRITE_SIZE{64.0f};

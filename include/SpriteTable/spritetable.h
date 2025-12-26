@@ -115,6 +115,7 @@ class SpriteTable
 {
   private:
     bool init{true};
+    bool thisSpriteTableIsActive{false};
     bool initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder);
     void firstInit(const std::vector<SDL_Rect>& atlasRects,
                    SpriteTableBorderType& spriteBorder,
@@ -142,14 +143,17 @@ class SpriteTable
     }
 
   public:
-    SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteTable);
+    SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteTable, 
+        bool active = false);
     ~SpriteTable();
     SpriteTable(const SpriteTable&) = delete;
     SpriteTable(SpriteTable&&) = delete;
     SpriteTable& operator=(const SpriteTable&) = delete;
     SpriteTable& operator=(SpriteTable&&) = delete;
 
+    const bool IsActive() const { return thisSpriteTableIsActive; }
     bool Status() const { return init; }
+    void SetActive(bool a) { thisSpriteTableIsActive = a; }
     const std::vector<Sprite>& MechanicVectorSprite() const { return mechanic.vectorSprite; }
     SDL_Texture* AtlasTexture() const { return atlas->GetAtlasTexture(); }
 

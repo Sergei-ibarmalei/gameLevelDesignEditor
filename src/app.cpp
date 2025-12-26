@@ -1,13 +1,15 @@
 #include "Table/app.h"
 #include <iostream>
 
-static void showSpriteTableBorder(SDL_Renderer* renderer, SpriteTableBorderType& spriteTableBorder);
+static void showSpriteTableBorder(SDL_Renderer* renderer,
+                                  SpriteTableBorderType& spriteTableBorder,
+                                  const SDL_Color c);
 static void showSimpleSpriteVector(SDL_Renderer* renderer,
                                    SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite);
 static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
 // static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r);
-static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r);
+static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r, const SDL_Color c);
 static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma);
 
 static MouseActionType mouseAction;
@@ -69,6 +71,7 @@ bool App::initEditorTableAndSpriteTable()
     spriteBorderOrientation = ESpriteBorderOrientation::HORIZONTAL;
 #endif
     defineSpriteBorderSizes(spriteBorderOrientation, spriteTableBorder);
+    // Editor table изначально активен
     editorTable =
         std::make_unique<EditorTable>(spriteBorderOrientation, spriteTableBorder, 20, 29, true);
     if (!editorTable->Status())
@@ -94,7 +97,8 @@ bool App::initEditorTableAndSpriteTable()
     spriteTableBorder.ySpriteFirst =
         static_cast<float>(spriteTableBorder.spriteBorderRect.y + PADDING);
 
-    spriteTable = std::make_unique<SpriteTable>(renderer_, spriteTableBorder);
+    // Sprite table изначально неактивен
+    spriteTable = std::make_unique<SpriteTable>(renderer_, spriteTableBorder, false);
     if (!spriteTable->Status())
         return false;
     return true;
@@ -125,6 +129,12 @@ void App::run()
                 switch (e.key.keysym.sym)
                 {
 #ifdef POS_HORIZONTAL
+                    case SDLK_TAB:
+                    {
+                        spriteTable->SetActive(!spriteTable->IsActive());
+                        editorTable->SetActive(!editorTable->IsActive());
+                        break;
+                    }
                     case SDLK_RIGHT:
                     {
 
@@ -206,7 +216,8 @@ void App::run()
             showLightBox(renderer_, mouseAction);
         }
 
-        showEditorTableBorder(renderer_, editorTableBorder);
+        showEditorTableBorder(
+            renderer_, editorTableBorder, editorTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
         spriteTable->MovingInSpriteTable(deltaTime);
 
         SDL_RenderSetClipRect(renderer_, &spriteTableBorder.spriteBorderRect);
@@ -215,7 +226,8 @@ void App::run()
         SDL_RenderSetClipRect(renderer_, nullptr);
         showChosenRect(renderer_, spriteTable->GetChosenRect());
 
-        showSpriteTableBorder(renderer_, spriteTableBorder);
+        showSpriteTableBorder(
+            renderer_, spriteTableBorder, spriteTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
 
         SDL_RenderPresent(renderer_);
     }
@@ -276,22 +288,11 @@ void HandleMouseAction::CalculateLightBox(MouseActionType& ma, const SDL_Rect& e
     ma.Box.h = static_cast<int>(SPRITE_SIZE);
 }
 
-static void showSpriteTableBorder(SDL_Renderer* renderer, SpriteTableBorderType& spriteTableBorder)
+static void showSpriteTableBorder(SDL_Renderer* renderer,
+                                  SpriteTableBorderType& spriteTableBorder,
+                                  const SDL_Color c)
 {
-    if (spriteTableBorder.isActive)
-        SDL_SetRenderDrawColor(renderer,
-                               spriteTableBorder.activeBorderColor.r,
-                               spriteTableBorder.activeBorderColor.g,
-                               spriteTableBorder.activeBorderColor.b,
-                               spriteTableBorder.activeBorderColor.a);
-    else
-        SDL_SetRenderDrawColor(renderer,
-                               spriteTableBorder.inactiveBorderColor.r,
-                               spriteTableBorder.inactiveBorderColor.g,
-                               spriteTableBorder.inactiveBorderColor.b,
-                               spriteTableBorder.inactiveBorderColor.a);
-
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
     SDL_RenderDrawRect(renderer, &spriteTableBorder.spriteBorderRect);
 }
 
@@ -311,9 +312,9 @@ static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r)
     SDL_RenderDrawRectF(renderer, &r);
 }
 
-static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r)
+static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r, const SDL_Color c)
 {
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 0xFF);
+    SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
     SDL_RenderDrawRect(renderer, &r);
 }
 

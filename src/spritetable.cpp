@@ -8,10 +8,10 @@ const char* filePath[] = {"assets/one.png",
                           "assets/five.png",
                           "assets/six.png"};
 
-Sprite::Sprite(const SDL_Rect& rectFromAtlas, float x, float y):
-    transform(x, y, SPRITE_SIZE, SPRITE_SIZE),
-    sourcerect(rectFromAtlas) {}
-
+Sprite::Sprite(const SDL_Rect& rectFromAtlas, float x, float y)
+    : transform(x, y, SPRITE_SIZE, SPRITE_SIZE), sourcerect(rectFromAtlas)
+{
+}
 
 Atlas::Atlas(SDL_Renderer* renderer, size_t size, const char** filePath)
 {
@@ -177,7 +177,7 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
     return true;
 }
 
-SpriteTable::SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder)
+SpriteTable::SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder, bool active)
 {
     if (!r)
     {
@@ -188,6 +188,7 @@ SpriteTable::SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder)
         return;
     }
     init = initSpriteTable(r, spriteBorder);
+    thisSpriteTableIsActive = active;
 }
 
 SpriteTable::~SpriteTable()
@@ -315,14 +316,12 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
         {
             [[likely]] case ESpriteBorderOrientation::HORIZONTAL:
             {
-                LastSpriteAtTheMiddle =
-                    mechanic.vectorSprite.back() == spriteTable.xSpriteMiddle;
+                LastSpriteAtTheMiddle = mechanic.vectorSprite.back() == spriteTable.xSpriteMiddle;
                 break;
             }
             case ESpriteBorderOrientation::VERTICAL:
             {
-                LastSpriteAtTheMiddle =
-                    mechanic.vectorSprite.back() == spriteTable.ySpriteMiddle;
+                LastSpriteAtTheMiddle = mechanic.vectorSprite.back() == spriteTable.ySpriteMiddle;
                 break;
             }
             default:

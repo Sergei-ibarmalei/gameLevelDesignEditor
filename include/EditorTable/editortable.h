@@ -53,6 +53,8 @@ class EditorTable
     EditorTable& operator=(const EditorTable&) = delete;
     EditorTable(EditorTable&&) = delete;
     bool Status() const { return init; }
+    const bool IsActive() const { return thisTableIsActive; }
+    void SetActive(bool a) { thisTableIsActive = a; }
     const SDL_FRect& GetTableBorder() const
     {
             return tableBorder->GetBorder();
