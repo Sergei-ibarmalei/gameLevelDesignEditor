@@ -128,16 +128,18 @@ void App::run()
             {
                 switch (e.key.keysym.sym)
                 {
-#ifdef POS_HORIZONTAL
                     case SDLK_TAB:
                     {
                         spriteTable->SetActive(!spriteTable->IsActive());
                         editorTable->SetActive(!editorTable->IsActive());
                         break;
                     }
+#ifdef POS_HORIZONTAL
+
                     case SDLK_RIGHT:
                     {
-
+                        if (!spriteTable->IsActive())
+                            break;
                         spriteTable->MoveProcessStart();
 
                         spriteTable->ChosenRectIsNotAtLeftEnd();
@@ -152,6 +154,8 @@ void App::run()
                     }
                     case SDLK_LEFT:
                     {
+                        if (!spriteTable->IsActive())
+                            break;
                         spriteTable->MoveProcessStart();
                         spriteTable->ChosenRectIsNotAtRightEnd();
                         if (spriteTable->Cant_move_left(spriteTableBorder))
@@ -169,6 +173,8 @@ void App::run()
 #else
                     case SDLK_DOWN:
                     {
+                        if (!spriteTable->IsActive())
+                            break;
                         spriteTable->MoveProcessStart();
                         spriteTable->ChosenRectIsNotAtTopEnd();
                         if (spriteTable->Cant_move_bottom(spriteTableBorder))
@@ -182,6 +188,8 @@ void App::run()
                     }
                     case SDLK_UP:
                     {
+                        if (!spriteTable->IsActive())
+                            break;
                         spriteTable->MoveProcessStart();
                         spriteTable->ChosenRectIsNotAtBottomEnd();
                         if (spriteTable->Cant_move_top(spriteTableBorder))
