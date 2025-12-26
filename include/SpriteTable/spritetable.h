@@ -9,8 +9,12 @@
 
 struct Transform
 {
-    SDL_FRect rect;
+    SDL_FRect rect{0.0f, 0.0f, 0.0f, 0.0f};
     float origin{0.0f};
+
+    Transform() = default;
+    Transform(float x, float y, float w, float h) : rect{x, y, w, h} { SetOrigin(); }
+
 
 #ifdef POS_HORIZONTAL
     void SetOffsetFromOrigin(float path) { rect.x = origin + path; }
@@ -112,9 +116,9 @@ class SpriteTable
   private:
     bool init{true};
     bool initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder);
-    void firstInit(const std::vector<SDL_Rect>& atlasRects, 
-        SpriteTableBorderType& spriteBorder,
-        const size_t spriteTableCountTotal);
+    void firstInit(const std::vector<SDL_Rect>& atlasRects,
+                   SpriteTableBorderType& spriteBorder,
+                   const size_t spriteTableCountTotal);
     Mechanic mechanic;
     Atlas* atlas{nullptr};
 

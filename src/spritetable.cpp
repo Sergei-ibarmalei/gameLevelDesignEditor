@@ -8,12 +8,10 @@ const char* filePath[] = {"assets/one.png",
                           "assets/five.png",
                           "assets/six.png"};
 
-Sprite::Sprite(const SDL_Rect& rectFromAtlas, float x, float y)
-{
-    sourcerect = rectFromAtlas;
-    transform.rect = {x, y, SPRITE_SIZE, SPRITE_SIZE};
-    transform.SetOrigin();
-}
+Sprite::Sprite(const SDL_Rect& rectFromAtlas, float x, float y):
+    transform(x, y, SPRITE_SIZE, SPRITE_SIZE),
+    sourcerect(rectFromAtlas) {}
+
 
 Atlas::Atlas(SDL_Renderer* renderer, size_t size, const char** filePath)
 {
@@ -251,8 +249,7 @@ void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects,
         else
         {
             auto spriteY = startY + i * (SPRITE_SIZE + PADDING);
-            Sprite s{atlasRects[i], startX, spriteY};
-            mechanic.vectorSprite.emplace_back(s);
+            mechanic.vectorSprite.emplace_back(atlasRects[i], startX, spriteY);
         }
     }
 }
@@ -370,7 +367,6 @@ void SpriteTable::moveSprites(float delta) //-
     if (move_complete)
     {
         mechanic.logic.MoveProcess = false;
-        ;
         mechanic.fullPath = SPRITESIZE_WITH_PADDING;
         for (auto& sprite : mechanic.vectorSprite)
         {
