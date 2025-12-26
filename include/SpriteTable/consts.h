@@ -63,4 +63,4 @@ constexpr float SPEED{800.0f};
 // Индекс спрайта в середине спрайтбордера, после которого прямоугольник "выбора" не может двигаться
 constexpr int MIDDLE_INDEX{2};
 
-constexpr int HELPERDOT_SPRITESIZE {8};
+//constexpr int HELPERDOT_SPRITESIZE {8};

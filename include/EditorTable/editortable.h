@@ -34,7 +34,7 @@ struct EditorTableBorder
     void SetActive(bool a) { active = a; }
     const SDL_FRect& GetBorder() const { return border; }
     const SDL_Rect& GetIntBorder() const { return intBorder; }
-    const SDL_Point GetTheRealRC() const {return theRealRowsAndCols;}
+    const SDL_Point& GetTheRealRC() const {return theRealRowsAndCols;}
 };
 
 class EditorTable

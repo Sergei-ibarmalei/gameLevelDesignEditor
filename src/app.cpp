@@ -11,7 +11,9 @@ static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
 // static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r);
 static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r, const SDL_Color c);
 static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma);
-static void ShowHelperDots(SDL_Renderer* renderer, SDL_Texture* t, const std::vector<SDL_Rect>& s);
+//static void ShowHelperDots(SDL_Renderer* renderer, SDL_Texture* t, const std::vector<SDL_Rect>& s);
+static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>& dots);
+
 
 static MouseActionType mouseAction;
 static Uint32 takeMouseAction;
@@ -55,6 +57,19 @@ bool App::initSdl(int width, int height)
         IMG_Quit();
         SDL_Quit();
         return false;
+    }
+
+    // Проверка работы Vsync
+    if (SDL_RenderSetVSync(renderer_, 1) != 0)
+    {
+        std::cout << "RenderSetVSync failed " << SDL_GetError() << '\n';
+    }
+
+    int vsync = 0;
+
+    if (SDL_RenderSetVSync(renderer_, 1) != 0)
+    {
+        SDL_Log("SDL_RenderSetVSync failed: %s", SDL_GetError());
     }
 
     // Включаем альфа-смешивание для рендерера
@@ -110,12 +125,16 @@ void App::run()
     if (!initEditorTableAndSpriteTable())
         return;
     editorTableBorder = editorTable->GetIntTableBorder();
-    HelperDot helperDot(renderer_, editorTableBorder, editorTable->GetRealRowsColsEditorTable());
-    if (!helperDot.Status()) return;
+    HelperDot helperDot(editorTableBorder, editorTable->GetRealRowsColsEditorTable());
+    if (!helperDot.Status())
+        return;
 
     SDL_Event e;
 
     lastTime = SDL_GetTicks();
+
+    //Uint64 lastCounter = SDL_GetPerformanceCounter();
+    //const double freq = (double)SDL_GetPerformanceFrequency();
 
     while (running_)
     {
@@ -212,6 +231,10 @@ void App::run()
             }
         }
 
+        //Uint64 now = SDL_GetPerformanceCounter();
+        //double deltatime = (double)(now - lastCounter) / freq;
+        //lastCounter = now;
+
         SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
         SDL_RenderClear(renderer_);
 
@@ -240,9 +263,33 @@ void App::run()
         showSpriteTableBorder(
             renderer_, spriteTableBorder, spriteTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
 
-        ShowHelperDots(renderer_, helperDot.GetHelperDotTexture(), helperDot.GetHelperSourceRects());
+        // Показываем белые точки
+        //ShowHelperDots(
+          // renderer_, helperDot.GetHelperDotTexture(), helperDot.GetHelperSourceRects());
+        ShowHelperDots(renderer_, helperDot.GetHelperDots());
 
         SDL_RenderPresent(renderer_);
+
+        // FPS logger (раз в секунду)
+        //static double acc = 0.0;
+        //static int frames = 0;
+        //static double maxDt = 0.0;
+
+        //acc += deltaTime;
+        //frames++;
+        //if (deltaTime > maxDt)
+        //    maxDt = deltaTime;
+
+        //if (acc >= 1.0)
+        //{
+        //    double avgMs = (acc * 1000.0) / frames;
+        //    std::printf("FPS: %d | avg: %.3f ms | max: %.3f ms\n", frames, avgMs, maxDt * 1000.0);
+        //    std::fflush(stdout);
+
+        //    acc = 0.0;
+        //    frames = 0;
+        //    maxDt = 0.0;
+        //}
     }
 }
 
@@ -290,14 +337,16 @@ void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTa
     }
 }
 
-static void ShowHelperDots(SDL_Renderer* renderer, SDL_Texture* t, const std::vector<SDL_Rect>& s)
+static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>& dots)
 {
-    SDL_Rect source {0, 0, HELPDOT_SPRITESIZE, HELPERDOT_SPRITESIZE};
+    //SDL_Rect source{0, 0, HELPDOT_SPRITESIZE, HELPDOT_SPRITESIZE};
 
-    for (const auto& r : s)
-    {
-        SDL_RenderCopy(renderer, t, &source, &r);
-    }
+    //for (const auto& r : s)
+    //{
+    //    SDL_RenderCopy(renderer, t, &source, &r);
+    //}
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderDrawPoints(renderer, dots.data(), (int)dots.size());
 }
 
 void HandleMouseAction::CalculateLightBox(MouseActionType& ma, const SDL_Rect& editorTableBorder)
