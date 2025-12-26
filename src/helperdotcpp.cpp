@@ -97,8 +97,8 @@ void HelperDot::initAllHelperDotsDestRects(const SDL_Rect& border,
     {
         for (size_t c = 0; c < dotCols; c++)
         {
-            allHelperDotsDestRects.emplace_back(startx + static_cast<int>(c * HELPDOT_SPRITESIZE) -
-                HELPDOT_SPRITESIZE / 2, starty + static_cast<int>(r * HELPDOT_SPRITESIZE) -
+            allHelperDotsDestRects.emplace_back(startx + static_cast<int>(c * SPRITE_SIZE) -
+                HELPDOT_SPRITESIZE / 2, starty + static_cast<int>(r * SPRITE_SIZE) -
                 HELPDOT_SPRITESIZE / 2, HELPDOT_SPRITESIZE, HELPDOT_SPRITESIZE);
         }
     }
