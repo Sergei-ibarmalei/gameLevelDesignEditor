@@ -1,6 +1,6 @@
 #pragma once
 
-//#define LOG
+#define LOG
 
 
 #ifdef LOG

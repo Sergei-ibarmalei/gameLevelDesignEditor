@@ -31,8 +31,6 @@ struct SpriteTableBorderType
     float xSpriteFirst{0.0f};
     float ySpriteFirst{0.0f};
 
-    //SDL_Color activeBorderColor{255, 0, 0, 255};
-    //SDL_Color inactiveBorderColor{100, 100, 100, 255};
     SDL_Rect spriteBorderRect;
     ESpriteBorderOrientation orientation;
     bool isActive{false};
@@ -64,4 +62,4 @@ constexpr float SPEED{800.0f};
 // Индекс спрайта в середине спрайтбордера, после которого прямоугольник "выбора" не может двигаться
 constexpr int MIDDLE_INDEX{2};
 
-
+constexpr int HELPERDOT_SPRITESIZE {8};
