@@ -85,8 +85,8 @@ struct Mechanic
 {
     Logics logic;
     EDirection dir = EDirection::RIGHT;
-    //int index{0};
-    int atlasID {0};
+    int textureID {0};
+    int index {0};
     int sign{0};
     float fullPath{0.0f};
     ChosenRect chRect;
@@ -138,6 +138,7 @@ class SpriteTable
   private:
     bool init{true};
     bool thisSpriteTableIsActive{false};
+    size_t spriteTableCountTotal {0};
     bool initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder);
     void firstInit(const std::vector<SDL_Rect>& atlasRects,
                    SpriteTableBorderType& spriteBorder,
@@ -180,6 +181,7 @@ class SpriteTable
     SDL_Texture* AtlasTexture() const {return atlasTexture;}
 
     const SDL_FRect& GetChosenRect() const { return mechanic.chRect.transform.GetRect(); }
+    int GetSpriteTableTextureID() const {return mechanic.textureID;}
     void MovingInSpriteTable(float deltaTime);
     void CheckMoveLogic(SpriteTableBorderType& spriteTableBorder); //-
 
@@ -196,7 +198,7 @@ class SpriteTable
     void SetDirectrion(EDirection dir) //-
     {
         mechanic.sign = static_cast<int>(dir);
-        mechanic.atlasID += mechanic.sign;
+        mechanic.index += mechanic.sign;
     }
 #ifdef POS_HORIZONTAL
     bool Cant_move_right(SpriteTableBorderType& spriteTableBorder); //-
@@ -217,6 +219,9 @@ class SpriteTable
         mechanic.logic.WhiteAtLeftEnd = true;
         mechanic.logic.MoveProcess = false;
     }
+
+    void IncTextureID();
+    void DecTextureID();
 #else
     bool Cant_move_bottom(SpriteTableBorderType& spriteTableBorder);
     bool Cant_move_top(SpriteTableBorderType& spriteTableBorder);

@@ -205,7 +205,7 @@ SpriteTable::~SpriteTable()
 
 bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder)
 {
-    size_t spriteTableCountTotal = std::size(filePath);
+    spriteTableCountTotal = std::size(filePath);
     if (!spriteTableCountTotal)
     {
 #ifdef LOG
@@ -244,7 +244,7 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
     firstInit(atlas->GetSourceRects(), spriteBorder, spriteTableCountTotal);
     atlasTexture = atlas->GetAtlasTexture();
     mechanic.chRect.Init(mechanic.vectorSprite[0].transform.GetRect());
-    mechanic.atlasID = 0;
+    mechanic.index = 0;
 
     return true;
 }
@@ -286,14 +286,14 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
     {
         case ESpriteBorderOrientation::HORIZONTAL:
         {
-            WhiteAtLeft = mechanic.atlasID < 0;
-            WhiteAtRight = mechanic.atlasID > MIDDLE_INDEX;
+            WhiteAtLeft = mechanic.index < 0;
+            WhiteAtRight = mechanic.index > MIDDLE_INDEX;
             break;
         }
         case ESpriteBorderOrientation::VERTICAL:
         {
-            WhiteAtTop = mechanic.atlasID < 0;
-            WhiteAtBottom = mechanic.atlasID > MIDDLE_INDEX;
+            WhiteAtTop = mechanic.index < 0;
+            WhiteAtBottom = mechanic.index > MIDDLE_INDEX;
             break;
         }
         default:
@@ -311,7 +311,7 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
         if (WhiteAtTop)
 #endif
         {
-            mechanic.atlasID = 0;
+            mechanic.index = 0;
             mechanic.logic.MovesWhite = false;
             mechanic.logic.MovesSprites = true;
             mechanic.dir = EDirection::RIGHT;
@@ -322,7 +322,7 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
         if (WhiteAtBottom)
 #endif
         {
-            mechanic.atlasID = MIDDLE_INDEX;
+            mechanic.index = MIDDLE_INDEX;
             mechanic.logic.MovesWhite = false;
             mechanic.logic.MovesSprites = true;
             mechanic.dir = EDirection::LEFT;
@@ -330,7 +330,7 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
     }
     if (we_can_move_sprites)
     {
-        bool white_at_the_middle{mechanic.atlasID == MIDDLE_INDEX};
+        bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
         switch (spriteTable.orientation)
         {
             [[likely]] case ESpriteBorderOrientation::HORIZONTAL:
@@ -410,14 +410,14 @@ void SpriteTable::moveSprites(float delta) //-
 #ifdef POS_HORIZONTAL
 bool SpriteTable::Cant_move_left(SpriteTableBorderType& spriteTableBorder) //-
 {
-    bool white_at_the_left{mechanic.atlasID == 0};
+    bool white_at_the_left{mechanic.index == 0};
     bool sprites_at_the_left{mechanic.vectorSprite.front() == spriteTableBorder.xSpriteFirst};
     return white_at_the_left && sprites_at_the_left;
 }
 
 bool SpriteTable::Cant_move_right(SpriteTableBorderType& spriteTableBorder) //-
 {
-    bool white_at_the_middle{mechanic.atlasID == MIDDLE_INDEX};
+    bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
     bool srpites_at_right_end{mechanic.vectorSprite.back() == spriteTableBorder.xSpriteMiddle};
     return white_at_the_middle && srpites_at_right_end;
 }
@@ -451,4 +451,17 @@ void SpriteTable::MovingInSpriteTable(float deltaTime)
     }
 }
 
+void SpriteTable::IncTextureID()
+{
+    mechanic.textureID += 1;
+    if (mechanic.textureID >= static_cast<int>(spriteTableCountTotal))
+        mechanic.textureID = static_cast<int>(spriteTableCountTotal);
+}
+
+void SpriteTable::DecTextureID()
+{
+    mechanic.textureID -= 1;
+    if (mechanic.textureID < 0)
+        mechanic.textureID = 0;
+}
 

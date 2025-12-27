@@ -125,8 +125,6 @@ void App::run()
         return;
 
     SDL_Event e;
-    //showMechanicVectorSprite(spriteTable->MechanicVectorSprite());
-
 
     lastTime = SDL_GetTicks();
 
@@ -149,6 +147,10 @@ void App::run()
             {
                 IsMouseOnEditorTable(e.motion);
                 HandleMouseMotion(e.motion);
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                HandleButton(e.button);
             }
             else if (e.type == SDL_KEYDOWN && !spriteTable->IsMoveProcess())
             {
@@ -176,6 +178,7 @@ void App::run()
                         }
                         spriteTable->SetDirectrion(EDirection::RIGHT);
                         spriteTable->CheckMoveLogic(spriteTableBorder);
+                        spriteTable->IncTextureID();
                         break;
                     }
                     case SDLK_LEFT:
@@ -191,6 +194,7 @@ void App::run()
                         }
                         spriteTable->SetDirectrion(EDirection::LEFT);
                         spriteTable->CheckMoveLogic(spriteTableBorder);
+                        spriteTable->DecTextureID();
                         break;
                     }
                     default:
@@ -210,6 +214,7 @@ void App::run()
                         }
                         spriteTable->SetDirectrion(EDirection::DOWN);
                         spriteTable->CheckMoveLogic(spriteTableBorder);
+                        spriteTable->IncTextureID();
                         break;
                     }
                     case SDLK_UP:
@@ -225,6 +230,7 @@ void App::run()
                         }
                         spriteTable->SetDirectrion(EDirection::UP);
                         spriteTable->CheckMoveLogic(spriteTableBorder);
+                        spriteTable->DecTextureID();
                         break;
                     }
                     default:
@@ -366,7 +372,12 @@ void App::HandleButton(const SDL_MouseButtonEvent& e)
 {
     if (e.button == SDL_BUTTON_LEFT && e.state == SDL_PRESSED)
     {
-        //TODO
+        editorTable->PutTextureOnTile(mouseAction.row, mouseAction.col,
+            spriteTable->GetSpriteTableTextureID());
+#ifdef LOG
+        std::cout << "["<< mouseAction.row << ',' << mouseAction.col <<
+            "] id:" << spriteTable->GetSpriteTableTextureID() << '\n';
+#endif
     }
 }
 

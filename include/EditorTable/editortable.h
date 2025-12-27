@@ -6,6 +6,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <vector>
+#include <memory>
 
 constexpr int EDITOR_TABLEBORDER_MINROW{1};
 constexpr int EDITOR_TABLEBORDER_MINCOLS{1};
@@ -34,7 +35,7 @@ struct EditorTableBorder
                       int rows = EDITOR_TABLEBORDER_MINROW,
                       int cols = EDITOR_TABLEBORDER_MINCOLS,
                       float sprite_size = SPRITE_SIZE);
-    bool Status() const { return init; }
+    ~EditorTableBorder() = default;
     bool IsActive() const { return active; }
     void SetActive(bool a) { active = a; }
     const SDL_FRect& GetBorder() const { return border; }
@@ -48,7 +49,7 @@ class EditorTable
     bool init{true};
     bool thisTableIsActive{false};
     std::vector<Tile> EditorTiles;
-    EditorTableBorder* tableBorder{nullptr};
+    std::unique_ptr<EditorTableBorder> tableBorder;
     size_t startX {0};
     size_t EditorTableTile_rows {0}; // total rows
     size_t EditorTableTile_cols {0}; // total cols
@@ -59,7 +60,7 @@ class EditorTable
                 int rows,
                 int cols,
                 bool isActive = true);
-    ~EditorTable();
+    ~EditorTable() = default;
     EditorTable(const EditorTable&) = delete;
     EditorTable& operator=(const EditorTable&) = delete;
     EditorTable(EditorTable&&) = delete;

@@ -133,23 +133,17 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
                          bool isActive)
 {
     thisTableIsActive = isActive;
-    tableBorder = new (std::nothrow) EditorTableBorder(stb, rows, cols, SPRITE_SIZE);
-    if (!tableBorder)
+
+    tableBorder = std::make_unique<EditorTableBorder>(stb, rows, cols, SPRITE_SIZE);
+    if (!tableBorder->init)
     {
 #ifdef LOG
-        std::cout << "Cannot allocate memory for EditorTableBorder, abort.\n";
+        std::cout << "Cannot create Editor table, abort.\n";
 #endif
         init = false;
         return;
     }
-    if (!tableBorder->Status())
-    {
-#ifdef LOG
-        std::cout << "Cannot initiate EditorTableBorder, abort.\n";
-#endif
-        init = false;
-        return;
-    }
+
     switch (sbOrientation)
     {
         case ESpriteBorderOrientation::HORIZONTAL:
@@ -184,7 +178,8 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
 #ifdef LOG
     std::cout << "Editor table tile array: [" << EditorTableTile_rows <<
         "][" << EditorTableTile_cols << "]\n";
-    EditorTiles.reserve(EditorTableTile_rows * EditorTableTile_cols);
+    size_t editorTilesSize {EditorTableTile_rows * EditorTableTile_cols};
+    EditorTiles.assign(editorTilesSize, {-1});
 #endif
 
     
@@ -192,14 +187,10 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
 
 void EditorTable::PutTextureOnTile(int row, int col, int atlasID)
 {
-    //if (row < 0 || col < 0) return;
+
     EditorTiles.at(static_cast<size_t>(row) * EditorTableTile_cols + startX +
         static_cast<size_t>(col)).tileId = atlasID;
 }
 
-EditorTable::~EditorTable()
-{
-    delete tableBorder;
-    tableBorder = nullptr;
-}
+
 
