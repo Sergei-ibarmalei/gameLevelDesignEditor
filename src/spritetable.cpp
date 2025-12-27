@@ -191,11 +191,7 @@ SpriteTable::SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder, b
     thisSpriteTableIsActive = active;
 }
 
-SpriteTable::~SpriteTable()
-{
-    delete atlas;
-    atlas = nullptr;
-}
+
 
 bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder)
 {
@@ -207,7 +203,9 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
 #endif
         return false;
     }
-    atlas = new (std::nothrow) Atlas(r, spriteTableCountTotal, filePath);
+
+    atlas = std::make_unique<Atlas> (r, spriteTableCountTotal, filePath);
+
     if (!atlas)
     {
 #ifdef LOG

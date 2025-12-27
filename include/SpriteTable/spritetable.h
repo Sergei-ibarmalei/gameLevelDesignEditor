@@ -6,6 +6,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <vector>
+#include <memory>
 
 struct Transform
 {
@@ -122,7 +123,7 @@ class SpriteTable
                    SpriteTableBorderType& spriteBorder,
                    const size_t spriteTableCountTotal);
     Mechanic mechanic;
-    Atlas* atlas{nullptr};
+    std::unique_ptr<Atlas> atlas;
 
     bool chosenRectIsNotAtEnds() const //-
     {
@@ -146,7 +147,7 @@ class SpriteTable
   public:
     SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteTable, 
         bool active = false);
-    ~SpriteTable();
+    ~SpriteTable() = default;
     SpriteTable(const SpriteTable&) = delete;
     SpriteTable(SpriteTable&&) = delete;
     SpriteTable& operator=(const SpriteTable&) = delete;
