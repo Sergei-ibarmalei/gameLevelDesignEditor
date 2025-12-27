@@ -32,8 +32,8 @@ bool App::initSdl(int width, int height)
         return false;
     }
 
-    window_ = SDL_CreateWindow(
-        "Table", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+    window_.reset(SDL_CreateWindow(
+        "Table", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN));
 
     if (!window_)
     {
@@ -43,12 +43,12 @@ bool App::initSdl(int width, int height)
         return false;
     }
 
-    renderer_ =
-        SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    renderer_.reset(
+        SDL_CreateRenderer(window_.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
     if (!renderer_)
     {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
-        SDL_DestroyWindow(window_);
+        window_.reset();
         window_ = nullptr;
         IMG_Quit();
         SDL_Quit();
@@ -56,22 +56,17 @@ bool App::initSdl(int width, int height)
     }
 
     // Проверка работы Vsync
-    if (SDL_RenderSetVSync(renderer_, 1) != 0)
+    if (SDL_RenderSetVSync(renderer_.get(), 1) != 0)
     {
 #ifdef LOG
         std::cout << "RenderSetVSync failed " << SDL_GetError() << '\n';
 #endif
     }
 
-    int vsync = 0;
 
-    if (SDL_RenderSetVSync(renderer_, 1) != 0)
-    {
-        SDL_Log("SDL_RenderSetVSync failed: %s", SDL_GetError());
-    }
 
     // Включаем альфа-смешивание для рендерера
-    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND);
 
     running_ = true;
     return true;
@@ -112,7 +107,7 @@ bool App::initEditorTableAndSpriteTable()
         static_cast<float>(spriteTableBorder.spriteBorderRect.y + PADDING);
 
     // Sprite table изначально неактивен
-    spriteTable = std::make_unique<SpriteTable>(renderer_, spriteTableBorder, false);
+    spriteTable = std::make_unique<SpriteTable>(renderer_.get(), spriteTableBorder, false);
     if (!spriteTable->Status())
         return false;
     return true;
@@ -132,7 +127,7 @@ void App::run()
 
     lastTime = SDL_GetTicks();
 
-#ifdef PERFOMANCE
+#ifdef PERFORMANCE
     Uint64 lastCounter = SDL_GetPerformanceCounter();
     const double freq = (double)SDL_GetPerformanceFrequency();
 #endif
@@ -236,40 +231,40 @@ void App::run()
                 }
             }
         }
-#ifdef PERFOMANCE
+#ifdef PERFORMANCE
         Uint64 now = SDL_GetPerformanceCounter();
         double deltatime = (double)(now - lastCounter) / freq;
         lastCounter = now;
 #endif
 
-        SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
-        SDL_RenderClear(renderer_);
+        SDL_SetRenderDrawColor(Renderer(), 30, 30, 36, 255);
+        SDL_RenderClear(Renderer());
 
         showEditorTableBorder(
-            renderer_, editorTableBorder, editorTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
+            Renderer(), editorTableBorder, editorTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
         spriteTable->MovingInSpriteTable(deltaTime);
 
-        SDL_RenderSetClipRect(renderer_, &spriteTableBorder.spriteBorderRect);
+        SDL_RenderSetClipRect(Renderer(), &spriteTableBorder.spriteBorderRect);
         showSimpleSpriteVector(
-            renderer_, spriteTable->AtlasTexture(), spriteTable->MechanicVectorSprite());
-        SDL_RenderSetClipRect(renderer_, nullptr);
-        showChosenRect(renderer_, spriteTable->GetChosenRect());
+            Renderer(), spriteTable->AtlasTexture(), spriteTable->MechanicVectorSprite());
+        SDL_RenderSetClipRect(Renderer(), nullptr);
+        showChosenRect(Renderer(), spriteTable->GetChosenRect());
 
         showSpriteTableBorder(
-            renderer_, spriteTableBorder, spriteTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
+            Renderer(), spriteTableBorder, spriteTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
 
         if (doShowCursor) 
         {
-            showLightBox(renderer_, mouseAction);
+            showLightBox(Renderer(), mouseAction);
         }
 
         // Показываем белые точки
 
-        ShowHelperDots(renderer_, helperDot.GetHelperDots());
+        ShowHelperDots(Renderer(), helperDot.GetHelperDots());
 
-        SDL_RenderPresent(renderer_);
+        SDL_RenderPresent(Renderer());
 
-#ifdef PERFOMANCE
+#ifdef PERFORMANCE
         // FPS logger (раз в секунду)
         static double acc = 0.0;
         static int frames = 0;
@@ -296,16 +291,9 @@ void App::run()
 
 void App::shutdown()
 {
-    if (renderer_)
-    {
-        SDL_DestroyRenderer(renderer_);
-        renderer_ = nullptr;
-    }
-    if (window_)
-    {
-        SDL_DestroyWindow(window_);
-        window_ = nullptr;
-    }
+
+    renderer_.reset();
+    window_.reset();
     IMG_Quit();
     SDL_Quit();
 }

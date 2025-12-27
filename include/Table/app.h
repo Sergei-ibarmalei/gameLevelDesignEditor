@@ -24,9 +24,11 @@ class App
     SpriteTableBorderType spriteTableBorder;
     std::unique_ptr<EditorTable> editorTable;
     std::unique_ptr<SpriteTable> spriteTable;
+    using WindowPtr = std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>;
+    using RendererPtr = std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)>;
+    WindowPtr window_ {nullptr, SDL_DestroyWindow};
+    RendererPtr renderer_ {nullptr, SDL_DestroyRenderer};
 
-    SDL_Window* window_ = nullptr;
-    SDL_Renderer* renderer_ = nullptr;
     MouseActionType mouseAction;
     bool running_ = false;
     bool doShowCursor{false};
@@ -41,6 +43,8 @@ class App
     void defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTableBorderType& stb);
 
   public:
+      SDL_Renderer* Renderer() const noexcept {return renderer_.get();}
+      SDL_Window* Window() const noexcept {return window_.get();}
     bool initSdl(int w, int h);
     bool initEditorTableAndSpriteTable();
     void run();
