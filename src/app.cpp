@@ -8,10 +8,8 @@ static void showSimpleSpriteVector(SDL_Renderer* renderer,
                                    SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite);
 static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
-// static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_FRect& r);
 static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r, const SDL_Color c);
 static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma);
-//static void ShowHelperDots(SDL_Renderer* renderer, SDL_Texture* t, const std::vector<SDL_Rect>& s);
 static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>& dots);
 
 
@@ -62,7 +60,9 @@ bool App::initSdl(int width, int height)
     // Проверка работы Vsync
     if (SDL_RenderSetVSync(renderer_, 1) != 0)
     {
+#ifdef LOG
         std::cout << "RenderSetVSync failed " << SDL_GetError() << '\n';
+#endif
     }
 
     int vsync = 0;
@@ -133,8 +133,10 @@ void App::run()
 
     lastTime = SDL_GetTicks();
 
-    //Uint64 lastCounter = SDL_GetPerformanceCounter();
-    //const double freq = (double)SDL_GetPerformanceFrequency();
+#ifdef PERFOMANCE
+    Uint64 lastCounter = SDL_GetPerformanceCounter();
+    const double freq = (double)SDL_GetPerformanceFrequency();
+#endif
 
     while (running_)
     {
@@ -230,10 +232,11 @@ void App::run()
                 }
             }
         }
-
-        //Uint64 now = SDL_GetPerformanceCounter();
-        //double deltatime = (double)(now - lastCounter) / freq;
-        //lastCounter = now;
+#ifdef PERFOMANCE
+        Uint64 now = SDL_GetPerformanceCounter();
+        double deltatime = (double)(now - lastCounter) / freq;
+        lastCounter = now;
+#endif
 
         SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
         SDL_RenderClear(renderer_);
@@ -264,32 +267,33 @@ void App::run()
             renderer_, spriteTableBorder, spriteTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
 
         // Показываем белые точки
-        //ShowHelperDots(
-          // renderer_, helperDot.GetHelperDotTexture(), helperDot.GetHelperSourceRects());
+
         ShowHelperDots(renderer_, helperDot.GetHelperDots());
 
         SDL_RenderPresent(renderer_);
 
+#ifdef PERFOMANCE
         // FPS logger (раз в секунду)
-        //static double acc = 0.0;
-        //static int frames = 0;
-        //static double maxDt = 0.0;
+        static double acc = 0.0;
+        static int frames = 0;
+        static double maxDt = 0.0;
 
-        //acc += deltaTime;
-        //frames++;
-        //if (deltaTime > maxDt)
-        //    maxDt = deltaTime;
+        acc += deltaTime;
+        frames++;
+        if (deltaTime > maxDt)
+            maxDt = deltaTime;
 
-        //if (acc >= 1.0)
-        //{
-        //    double avgMs = (acc * 1000.0) / frames;
-        //    std::printf("FPS: %d | avg: %.3f ms | max: %.3f ms\n", frames, avgMs, maxDt * 1000.0);
-        //    std::fflush(stdout);
+        if (acc >= 1.0)
+        {
+            double avgMs = (acc * 1000.0) / frames;
+            std::printf("FPS: %d | avg: %.3f ms | max: %.3f ms\n", frames, avgMs, maxDt * 1000.0);
+            std::fflush(stdout);
 
-        //    acc = 0.0;
-        //    frames = 0;
-        //    maxDt = 0.0;
-        //}
+            acc = 0.0;
+            frames = 0;
+            maxDt = 0.0;
+        }
+#endif
     }
 }
 
@@ -339,12 +343,7 @@ void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTa
 
 static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>& dots)
 {
-    //SDL_Rect source{0, 0, HELPDOT_SPRITESIZE, HELPDOT_SPRITESIZE};
 
-    //for (const auto& r : s)
-    //{
-    //    SDL_RenderCopy(renderer, t, &source, &r);
-    //}
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawPoints(renderer, dots.data(), (int)dots.size());
 }
