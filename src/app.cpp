@@ -13,10 +13,8 @@ static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma);
 static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>& dots);
 
 
-static MouseActionType mouseAction;
-static Uint32 takeMouseAction;
-static SDL_Rect editorTableBorder;
-static HandleMouseAction handeMouseAction;
+
+
 
 bool App::initSdl(int width, int height)
 {
@@ -131,6 +129,7 @@ void App::run()
 
     SDL_Event e;
 
+
     lastTime = SDL_GetTicks();
 
 #ifdef PERFOMANCE
@@ -148,6 +147,11 @@ void App::run()
         {
             if (e.type == SDL_QUIT)
                 running_ = false;
+            else if (e.type == SDL_MOUSEMOTION)
+            {
+                IsMouseOnEditorTable(e.motion);
+                HandleMouseMotion(e.motion);
+            }
             else if (e.type == SDL_KEYDOWN && !spriteTable->IsMoveProcess())
             {
                 switch (e.key.keysym.sym)
@@ -241,18 +245,6 @@ void App::run()
         SDL_SetRenderDrawColor(renderer_, 30, 30, 36, 255);
         SDL_RenderClear(renderer_);
 
-        takeMouseAction = SDL_GetMouseState(&mouseAction.mouseX, &mouseAction.mouseY);
-        mouseAction.IsOnEditorTable =
-            (mouseAction.mouseX >= editorTableBorder.x &&
-             mouseAction.mouseX < (editorTableBorder.x + editorTableBorder.w) &&
-             mouseAction.mouseY >= editorTableBorder.y &&
-             mouseAction.mouseY < (editorTableBorder.y + editorTableBorder.h));
-        if (mouseAction.IsOnEditorTable)
-        {
-            handeMouseAction.CalculateLightBox(mouseAction, editorTableBorder);
-            showLightBox(renderer_, mouseAction);
-        }
-
         showEditorTableBorder(
             renderer_, editorTableBorder, editorTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
         spriteTable->MovingInSpriteTable(deltaTime);
@@ -265,6 +257,11 @@ void App::run()
 
         showSpriteTableBorder(
             renderer_, spriteTableBorder, spriteTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
+
+        if (doShowCursor) 
+        {
+            showLightBox(renderer_, mouseAction);
+        }
 
         // Показываем белые точки
 
@@ -341,6 +338,20 @@ void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTa
     }
 }
 
+
+void  App::IsMouseOnEditorTable(SDL_MouseMotionEvent& e)
+{
+    if ((e.x >= editorTableBorder.x) &&
+        (e.x < editorTableBorder.x + editorTableBorder.w) &&
+        (e.y >= editorTableBorder.y) &&
+        (e.y < editorTableBorder.y + editorTableBorder.h))
+    {
+        doShowCursor = true;
+    }
+    else doShowCursor = false;
+    
+}
+
 static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>& dots)
 {
 
@@ -348,15 +359,35 @@ static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>&
     SDL_RenderDrawPoints(renderer, dots.data(), (int)dots.size());
 }
 
-void HandleMouseAction::CalculateLightBox(MouseActionType& ma, const SDL_Rect& editorTableBorder)
+
+
+void App::HandleMouseMotion(SDL_MouseMotionEvent& e)
 {
 
-    ma.col = static_cast<int>((ma.mouseX - editorTableBorder.x) / SPRITE_SIZE);
-    ma.row = static_cast<int>((ma.mouseY - editorTableBorder.y) / SPRITE_SIZE);
-    ma.Box.x = editorTableBorder.x + ma.col * static_cast<int>(SPRITE_SIZE);
-    ma.Box.y = editorTableBorder.y + ma.row * static_cast<int>(SPRITE_SIZE);
-    ma.Box.w = static_cast<int>(SPRITE_SIZE);
-    ma.Box.h = static_cast<int>(SPRITE_SIZE);
+    if (doShowCursor)
+    {
+        CalculateLightBox(e);       
+    }
+
+}
+
+void App::HandleButton(SDL_MouseButtonEvent& e)
+{
+    if (e.button == SDL_BUTTON_LEFT && e.state == SDL_PRESSED)
+    {
+
+    }
+}
+
+void App::CalculateLightBox(SDL_MouseMotionEvent& e)
+{
+
+    mouseAction.col = static_cast<int>((e.x - editorTableBorder.x) / SPRITE_SIZE);
+    mouseAction.row = static_cast<int>((e.y - editorTableBorder.y) / SPRITE_SIZE);
+    mouseAction.Box.x = editorTableBorder.x + mouseAction.col * static_cast<int>(SPRITE_SIZE);
+    mouseAction.Box.y = editorTableBorder.y + mouseAction.row * static_cast<int>(SPRITE_SIZE);
+    mouseAction.Box.w = static_cast<int>(SPRITE_SIZE);
+    mouseAction.Box.h = static_cast<int>(SPRITE_SIZE);
 }
 
 static void showSpriteTableBorder(SDL_Renderer* renderer,

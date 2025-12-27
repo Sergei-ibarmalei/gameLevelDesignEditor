@@ -83,7 +83,8 @@ struct Mechanic
 {
     Logics logic;
     EDirection dir = EDirection::RIGHT;
-    int index{0};
+    //int index{0};
+    int atlasID {0};
     int sign{0};
     float fullPath{0.0f};
     ChosenRect chRect;
@@ -174,7 +175,7 @@ class SpriteTable
     void SetDirectrion(EDirection dir) //-
     {
         mechanic.sign = static_cast<int>(dir);
-        mechanic.index += mechanic.sign;
+        mechanic.atlasID += mechanic.sign;
     }
 #ifdef POS_HORIZONTAL
     bool Cant_move_right(SpriteTableBorderType& spriteTableBorder); //-

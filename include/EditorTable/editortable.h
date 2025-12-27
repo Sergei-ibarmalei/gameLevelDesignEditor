@@ -12,6 +12,11 @@ constexpr int EDITOR_TABLEBORDER_MINCOLS{1};
 constexpr float EDITOR_TABLEBORDER_LEFTX{10.f};
 constexpr float EDITOR_TABLEBORDER_LEFTY{10.f};
 
+struct Tile
+{
+    int tileId {-1};
+};
+
 // Рамка редактора
 struct EditorTableBorder
 {
@@ -42,6 +47,7 @@ class EditorTable
   private:
     bool init{true};
     bool thisTableIsActive{false};
+    std::vector<Tile> EditorTiles;
     EditorTableBorder* tableBorder{nullptr};
 
   public:

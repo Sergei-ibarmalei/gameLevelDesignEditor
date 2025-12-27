@@ -178,6 +178,16 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         {
         }
     }
+    size_t widing {10};
+    size_t EditorTableTile_rows {static_cast<size_t>(tableBorder->GetTheRealRC().y)};
+    size_t EditorTableTile_cols {static_cast<size_t>(tableBorder->GetTheRealRC().x) + widing};
+#ifdef LOG
+    std::cout << "Editor table tile array: [" << EditorTableTile_rows <<
+        "][" << EditorTableTile_cols << "]\n";
+    EditorTiles.reserve(EditorTableTile_rows * EditorTableTile_cols);
+#endif
+
+    
 }
 
 EditorTable::~EditorTable()

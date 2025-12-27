@@ -10,43 +10,39 @@
 
 struct MouseActionType
 {
-    int mouseX {0};
-    int mouseY{0};
-    int row {0};
-    int col {0};
+    int row{0};
+    int col{0};
     SDL_Rect Box{};
     SDL_Color boxColor{200, 200, 210, 80};
     bool IsOnEditorTable{false};
 };
 
-class HandleMouseAction
-{
-public:
-    void CalculateLightBox(MouseActionType& ma,
-                           const SDL_Rect& editorTableBorder);
-};
-
 class App
 {
-  public:
+  private:
     ESpriteBorderOrientation spriteBorderOrientation;
     SpriteTableBorderType spriteTableBorder;
     std::unique_ptr<EditorTable> editorTable;
     std::unique_ptr<SpriteTable> spriteTable;
 
+    SDL_Window* window_ = nullptr;
+    SDL_Renderer* renderer_ = nullptr;
+    MouseActionType mouseAction;
+    bool running_ = false;
+    bool doShowCursor{false};
+    SDL_Rect editorTableBorder {0, 0, 0, 0};
+    Uint32 lastTime{0};
+    Uint32 currentTime{0};
+    float deltaTime{0.0f};
+    void IsMouseOnEditorTable(SDL_MouseMotionEvent& e);
+    void HandleMouseMotion(SDL_MouseMotionEvent& e);
+    void HandleButton(SDL_MouseButtonEvent& e);
+    void CalculateLightBox(SDL_MouseMotionEvent& e);
+    void defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTableBorderType& stb);
+
+  public:
     bool initSdl(int w, int h);
     bool initEditorTableAndSpriteTable();
     void run();
     void shutdown();
-    void defineSpriteBorderSizes(ESpriteBorderOrientation orientation,
-        SpriteTableBorderType& stb);
-
-  private:
-    SDL_Window* window_ = nullptr;
-    SDL_Renderer* renderer_ = nullptr;
-    bool running_ = false;
-
-    Uint32 lastTime{0};
-    Uint32 currentTime{0};
-    float deltaTime{0.0f};
 };
