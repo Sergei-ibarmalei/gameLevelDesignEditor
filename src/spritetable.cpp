@@ -216,6 +216,15 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
 
     std::unique_ptr<Atlas> atlas = 
         std::make_unique<Atlas> (r, spriteTableCountTotal, filePath);
+    if (!atlas->Status())
+    {
+#ifdef LOG
+        std::cout << "Could not create atlas, abort.\n";
+#endif
+        return false;
+    }
+
+    
 
     if (!atlas)
     {
