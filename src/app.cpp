@@ -16,6 +16,8 @@ static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>&
 
 
 
+
+
 bool App::initSdl(int width, int height)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -123,6 +125,7 @@ void App::run()
         return;
 
     SDL_Event e;
+    //showMechanicVectorSprite(spriteTable->MechanicVectorSprite());
 
 
     lastTime = SDL_GetTicks();
@@ -327,7 +330,7 @@ void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTa
 }
 
 
-void  App::IsMouseOnEditorTable(SDL_MouseMotionEvent& e)
+void  App::IsMouseOnEditorTable(const SDL_MouseMotionEvent& e)
 {
     if ((e.x >= editorTableBorder.x) &&
         (e.x < editorTableBorder.x + editorTableBorder.w) &&
@@ -349,7 +352,7 @@ static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>&
 
 
 
-void App::HandleMouseMotion(SDL_MouseMotionEvent& e)
+void App::HandleMouseMotion(const SDL_MouseMotionEvent& e)
 {
 
     if (doShowCursor)
@@ -359,15 +362,15 @@ void App::HandleMouseMotion(SDL_MouseMotionEvent& e)
 
 }
 
-void App::HandleButton(SDL_MouseButtonEvent& e)
+void App::HandleButton(const SDL_MouseButtonEvent& e)
 {
     if (e.button == SDL_BUTTON_LEFT && e.state == SDL_PRESSED)
     {
-
+        //TODO
     }
 }
 
-void App::CalculateLightBox(SDL_MouseMotionEvent& e)
+void App::CalculateLightBox(const SDL_MouseMotionEvent& e)
 {
 
     mouseAction.col = static_cast<int>((e.x - editorTableBorder.x) / SPRITE_SIZE);
@@ -392,7 +395,7 @@ static void showSimpleSpriteVector(SDL_Renderer* renderer,
 {
     for (auto& sprite : vectorSprite)
     {
-        SDL_RenderCopyF(renderer, texture, &sprite.SourceRect(), &sprite.transform.GetRect());
+        SDL_RenderCopyF(renderer, texture, &sprite.sourcerect, &sprite.transform.GetRect());
     }
 }
 
@@ -413,3 +416,6 @@ static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma)
     SDL_SetRenderDrawColor(renderer, ma.boxColor.r, ma.boxColor.g, ma.boxColor.b, ma.boxColor.a);
     SDL_RenderFillRect(renderer, &ma.Box);
 }
+
+
+

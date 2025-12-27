@@ -31,7 +31,7 @@ class Sprite
 {
   public:
     Transform transform;
-    SDL_Rect sourcerect;
+    SDL_Rect sourcerect; // source rect спрайта в атласе
     Sprite(const SDL_Rect& rectFromAtlas, float x, float y);
 
 #ifdef POS_HORIZONTAL
@@ -45,7 +45,7 @@ class Sprite
         return std::abs(transform.rect.y - other_y) < 0.01f;
     }
 #endif
-    const SDL_Rect& SourceRect() const { return sourcerect; }
+    //const SDL_Rect& SourceRect() const { return sourcerect; }
 };
 
 class ChosenRect
@@ -92,6 +92,12 @@ struct Mechanic
     std::vector<Sprite> vectorSprite;
 };
 
+
+
+
+
+
+
 class Atlas
 {
   private:
@@ -112,6 +118,19 @@ class Atlas
     const std::vector<SDL_Rect>& GetSourceRects() const { return sourceRects; }
     bool Status() const { return init; }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class SpriteTable
 {

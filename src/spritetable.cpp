@@ -55,7 +55,7 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
 {
     // Вектор для хранения SDL_Surface от каждого изображения из filePath
     std::vector<SDL_Surface*> surfacesFromImages(size, nullptr);
-    sourceRects.reserve(size);
+    //sourceRects.reserve(size);
 
     // загружаем изображения, делаем из них surface
     int totalWidth{0}; // полная ширина получаемой поверхности со всеми
@@ -429,3 +429,5 @@ void SpriteTable::MovingInSpriteTable(float deltaTime)
         }
     }
 }
+
+

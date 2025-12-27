@@ -36,10 +36,10 @@ class App
     Uint32 lastTime{0};
     Uint32 currentTime{0};
     float deltaTime{0.0f};
-    void IsMouseOnEditorTable(SDL_MouseMotionEvent& e);
-    void HandleMouseMotion(SDL_MouseMotionEvent& e);
-    void HandleButton(SDL_MouseButtonEvent& e);
-    void CalculateLightBox(SDL_MouseMotionEvent& e);
+    void IsMouseOnEditorTable(const SDL_MouseMotionEvent& e);
+    void HandleMouseMotion(const SDL_MouseMotionEvent& e);
+    void HandleButton(const SDL_MouseButtonEvent& e);
+    void CalculateLightBox(const SDL_MouseMotionEvent& e);
     void defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTableBorderType& stb);
 
   public:

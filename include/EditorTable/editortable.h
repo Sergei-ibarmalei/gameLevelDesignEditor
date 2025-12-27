@@ -49,6 +49,9 @@ class EditorTable
     bool thisTableIsActive{false};
     std::vector<Tile> EditorTiles;
     EditorTableBorder* tableBorder{nullptr};
+    size_t startX {0};
+    size_t EditorTableTile_rows {0}; // total rows
+    size_t EditorTableTile_cols {0}; // total cols
 
   public:
     EditorTable(ESpriteBorderOrientation sbOrientation,
@@ -61,7 +64,7 @@ class EditorTable
     EditorTable& operator=(const EditorTable&) = delete;
     EditorTable(EditorTable&&) = delete;
     bool Status() const { return init; }
-    const bool IsActive() const { return thisTableIsActive; }
+    bool IsActive() const { return thisTableIsActive; }
     void SetActive(bool a) { thisTableIsActive = a; }
     const SDL_FRect& GetTableBorder() const
     {
@@ -72,4 +75,7 @@ class EditorTable
             return tableBorder->GetIntBorder(); 
     }
     const SDL_Point& GetRealRowsColsEditorTable() const {return tableBorder->GetTheRealRC(); }
+    void PutTextureOnTile(int row, int col, int atlasID);
 };
+
+

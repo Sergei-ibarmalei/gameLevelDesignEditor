@@ -179,8 +179,8 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         }
     }
     size_t widing {10};
-    size_t EditorTableTile_rows {static_cast<size_t>(tableBorder->GetTheRealRC().y)};
-    size_t EditorTableTile_cols {static_cast<size_t>(tableBorder->GetTheRealRC().x) + widing};
+    EditorTableTile_rows = static_cast<size_t>(tableBorder->GetTheRealRC().y);
+    size_t EditorTableTile_cols = static_cast<size_t>(tableBorder->GetTheRealRC().x) + widing;
 #ifdef LOG
     std::cout << "Editor table tile array: [" << EditorTableTile_rows <<
         "][" << EditorTableTile_cols << "]\n";
@@ -190,8 +190,16 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
     
 }
 
+void EditorTable::PutTextureOnTile(int row, int col, int atlasID)
+{
+    //if (row < 0 || col < 0) return;
+    EditorTiles.at(static_cast<size_t>(row) * EditorTableTile_cols + startX +
+        static_cast<size_t>(col)).tileId = atlasID;
+}
+
 EditorTable::~EditorTable()
 {
     delete tableBorder;
     tableBorder = nullptr;
 }
+
