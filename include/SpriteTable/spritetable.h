@@ -33,6 +33,7 @@ class Sprite
     Transform transform;
     SDL_Rect sourcerect; // source rect спрайта в атласе
     Sprite(const SDL_Rect& rectFromAtlas, float x, float y);
+    ~Sprite() = default;
 
 #ifdef POS_HORIZONTAL
     bool operator==(const float other_x) const
@@ -142,7 +143,7 @@ class SpriteTable
                    SpriteTableBorderType& spriteBorder,
                    const size_t spriteTableCountTotal);
     Mechanic mechanic;
-    std::unique_ptr<Atlas> atlas;
+    SDL_Texture* atlasTexture {nullptr};
 
     bool chosenRectIsNotAtEnds() const //-
     {
@@ -166,7 +167,7 @@ class SpriteTable
   public:
     SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteTable, 
         bool active = false);
-    ~SpriteTable() = default;
+    ~SpriteTable();
     SpriteTable(const SpriteTable&) = delete;
     SpriteTable(SpriteTable&&) = delete;
     SpriteTable& operator=(const SpriteTable&) = delete;
@@ -176,7 +177,7 @@ class SpriteTable
     bool Status() const { return init; }
     void SetActive(bool a) { thisSpriteTableIsActive = a; }
     const std::vector<Sprite>& MechanicVectorSprite() const { return mechanic.vectorSprite; }
-    SDL_Texture* AtlasTexture() const { return atlas->GetAtlasTexture(); }
+    SDL_Texture* AtlasTexture() const {return atlasTexture;}
 
     const SDL_FRect& GetChosenRect() const { return mechanic.chRect.transform.GetRect(); }
     void MovingInSpriteTable(float deltaTime);

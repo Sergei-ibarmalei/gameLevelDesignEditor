@@ -44,11 +44,12 @@ Atlas::Atlas(SDL_Renderer* renderer, size_t size, const char** filePath)
 
 Atlas::~Atlas()
 {
-    if (atlasTexture)
-    {
-        SDL_DestroyTexture(atlasTexture);
-        atlasTexture = nullptr;
-    }
+    //if (atlasTexture)
+    //{
+    //    SDL_DestroyTexture(atlasTexture);
+    //    atlasTexture = nullptr;
+    //}
+    atlasTexture = nullptr;
 }
 
 bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath)
@@ -191,6 +192,15 @@ SpriteTable::SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder, b
     thisSpriteTableIsActive = active;
 }
 
+SpriteTable::~SpriteTable()
+{
+    if (atlasTexture)
+    {
+        SDL_DestroyTexture(atlasTexture);
+        atlasTexture = nullptr;
+    }
+}
+
 
 
 bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder)
@@ -204,7 +214,8 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
         return false;
     }
 
-    atlas = std::make_unique<Atlas> (r, spriteTableCountTotal, filePath);
+    std::unique_ptr<Atlas> atlas = 
+        std::make_unique<Atlas> (r, spriteTableCountTotal, filePath);
 
     if (!atlas)
     {
@@ -222,6 +233,7 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
         return false;
     }
     firstInit(atlas->GetSourceRects(), spriteBorder, spriteTableCountTotal);
+    atlasTexture = atlas->GetAtlasTexture();
     mechanic.chRect.Init(mechanic.vectorSprite[0].transform.GetRect());
     mechanic.atlasID = 0;
 
