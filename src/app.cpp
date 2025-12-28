@@ -255,7 +255,7 @@ void App::run()
 
         SDL_RenderSetClipRect(Renderer(), &spriteTableBorder.spriteBorderRect);
         showSimpleSpriteVector(
-            Renderer(), spriteTable->AtlasTexture(), spriteTable->MechanicVectorSprite());
+            Renderer(), spriteTable->AtlasTexture(), spriteTable->VectorSprite());
         SDL_RenderSetClipRect(Renderer(), nullptr);
         showChosenRect(Renderer(), spriteTable->GetChosenRect());
 

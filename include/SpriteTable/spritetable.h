@@ -13,9 +13,8 @@ struct Transform
     SDL_FRect rect{0.0f, 0.0f, 0.0f, 0.0f};
     float origin{0.0f};
 
-    Transform() = default;
+    Transform() {SetOrigin();}
     Transform(float x, float y, float w, float h) : rect{x, y, w, h} { SetOrigin(); }
-
 
 #ifdef POS_HORIZONTAL
     void SetOffsetFromOrigin(float path) { rect.x = origin + path; }
@@ -31,9 +30,12 @@ class Sprite
 {
   public:
     Transform transform;
-    SDL_Rect sourcerect; // source rect спрайта в атласе
+    SDL_Rect sourcerect{0, 0, 0, 0}; // source rect спрайта в атласе
+    Sprite() {}
     Sprite(const SDL_Rect& rectFromAtlas, float x, float y);
     ~Sprite() = default;
+
+    void SetTransform(float x, float y);
 
 #ifdef POS_HORIZONTAL
     bool operator==(const float other_x) const
@@ -46,7 +48,6 @@ class Sprite
         return std::abs(transform.rect.y - other_y) < 0.01f;
     }
 #endif
-    //const SDL_Rect& SourceRect() const { return sourcerect; }
 };
 
 class ChosenRect
@@ -85,30 +86,25 @@ struct Mechanic
 {
     Logics logic;
     EDirection dir = EDirection::RIGHT;
-    int textureID {0};
-    int index {0};
+    int textureID{0};
+    int index{0};
     int sign{0};
     float fullPath{0.0f};
     ChosenRect chRect;
-    std::vector<Sprite> vectorSprite;
 };
-
-
-
-
-
-
 
 class Atlas
 {
   private:
     bool init{true};
-    std::vector<SDL_Rect> sourceRects;
     SDL_Texture* atlasTexture{nullptr};
-    [[nodiscard]] bool MakeAtlas(SDL_Renderer* r, size_t size, const char** filePath);
+    [[nodiscard]] bool MakeAtlas(SDL_Renderer* r,
+                                 std::vector<Sprite>& vectorSprite,
+                                 size_t size,
+                                 const char** filePath);
 
   public:
-    Atlas(SDL_Renderer* r, size_t s, const char** filePath);
+    Atlas(SDL_Renderer* r, std::vector<Sprite>& vectorSprite, size_t s, const char** filePath);
     ~Atlas();
     Atlas(const Atlas&) = delete;
     Atlas(Atlas&&) = delete;
@@ -116,35 +112,22 @@ class Atlas
     Atlas& operator=(const Atlas&) = delete;
 
     SDL_Texture* GetAtlasTexture() const { return atlasTexture; }
-    const std::vector<SDL_Rect>& GetSourceRects() const { return sourceRects; }
     bool Status() const { return init; }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class SpriteTable
 {
   private:
     bool init{true};
     bool thisSpriteTableIsActive{false};
-    size_t spriteTableCountTotal {0};
-    bool initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder);
-    void firstInit(const std::vector<SDL_Rect>& atlasRects,
-                   SpriteTableBorderType& spriteBorder,
-                   const size_t spriteTableCountTotal);
+    size_t spriteTableCountTotal{0};
     Mechanic mechanic;
-    SDL_Texture* atlasTexture {nullptr};
+    std::unique_ptr<Atlas> atlas;
+    std::vector<Sprite> vectorSprite;
+
+    bool initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder);
+    void firstInit(SpriteTableBorderType& spriteBorder,
+                   const size_t spriteTableCountTotal);
 
     bool chosenRectIsNotAtEnds() const //-
     {
@@ -166,9 +149,8 @@ class SpriteTable
     }
 
   public:
-    SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteTable, 
-        bool active = false);
-    ~SpriteTable();
+    SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteTable, bool active = false);
+    ~SpriteTable() = default;
     SpriteTable(const SpriteTable&) = delete;
     SpriteTable(SpriteTable&&) = delete;
     SpriteTable& operator=(const SpriteTable&) = delete;
@@ -177,11 +159,11 @@ class SpriteTable
     const bool IsActive() const { return thisSpriteTableIsActive; }
     bool Status() const { return init; }
     void SetActive(bool a) { thisSpriteTableIsActive = a; }
-    const std::vector<Sprite>& MechanicVectorSprite() const { return mechanic.vectorSprite; }
-    SDL_Texture* AtlasTexture() const {return atlasTexture;}
+    const std::vector<Sprite>& VectorSprite() const { return vectorSprite; }
+    SDL_Texture* AtlasTexture() const { return atlas->GetAtlasTexture(); }
 
     const SDL_FRect& GetChosenRect() const { return mechanic.chRect.transform.GetRect(); }
-    int GetSpriteTableTextureID() const {return mechanic.textureID;}
+    int GetSpriteTableTextureID() const { return mechanic.textureID; }
     void MovingInSpriteTable(float deltaTime);
     void CheckMoveLogic(SpriteTableBorderType& spriteTableBorder); //-
 
@@ -220,8 +202,6 @@ class SpriteTable
         mechanic.logic.MoveProcess = false;
     }
 
-    void IncTextureID();
-    void DecTextureID();
 #else
     bool Cant_move_bottom(SpriteTableBorderType& spriteTableBorder);
     bool Cant_move_top(SpriteTableBorderType& spriteTableBorder);
@@ -238,6 +218,6 @@ class SpriteTable
         mechanic.logic.MoveProcess = false;
     }
 #endif
+    void IncTextureID();
+    void DecTextureID();
 };
-
-

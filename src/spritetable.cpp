@@ -13,7 +13,12 @@ Sprite::Sprite(const SDL_Rect& rectFromAtlas, float x, float y)
 {
 }
 
-Atlas::Atlas(SDL_Renderer* renderer, size_t size, const char** filePath)
+void Sprite::SetTransform(float x, float y)
+{
+    transform.rect = {x, y, SPRITE_SIZE, SPRITE_SIZE};
+}
+
+Atlas::Atlas(SDL_Renderer* renderer, std::vector<Sprite>& vectorSprite, size_t size, const char** filePath)
 {
     if (!renderer)
     {
@@ -39,24 +44,27 @@ Atlas::Atlas(SDL_Renderer* renderer, size_t size, const char** filePath)
         init = false;
         return;
     }
-    init = MakeAtlas(renderer, size, filePath);
+    init = MakeAtlas(renderer, vectorSprite, size, filePath);
 }
 
 Atlas::~Atlas()
 {
-    //if (atlasTexture)
-    //{
-    //    SDL_DestroyTexture(atlasTexture);
-    //    atlasTexture = nullptr;
-    //}
-    atlasTexture = nullptr;
+    if (atlasTexture)
+    {
+        SDL_DestroyTexture(atlasTexture);
+        atlasTexture = nullptr;
+    }
+    //atlasTexture = nullptr;
 }
 
-bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath)
+bool Atlas::MakeAtlas(SDL_Renderer* renderer, std::vector<Sprite>& vectorSprite, size_t size, const char** filePath)
 {
     // Вектор для хранения SDL_Surface от каждого изображения из filePath
     std::vector<SDL_Surface*> surfacesFromImages(size, nullptr);
     //sourceRects.reserve(size);
+
+    //vectorSprite.reserve(size);
+    vectorSprite.assign(size, {});
 
     // загружаем изображения, делаем из них surface
     int totalWidth{0}; // полная ширина получаемой поверхности со всеми
@@ -108,7 +116,9 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
         destRect.w = tmpSurface->w;
         destRect.h = tmpSurface->h;
 
-        sourceRects.emplace_back(destRect);
+        //sourceRects.emplace_back(destRect);
+        vectorSprite.at(i).sourcerect = destRect;
+
         surfacesFromImages[i] = tmpSurface;
 
         destRectX += tmpSurface->w + SPRITE_PADDING;
@@ -140,7 +150,7 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
         // Включаем альфу у источников
         SDL_SetSurfaceBlendMode(surfacesFromImages[i], SDL_BLENDMODE_BLEND);
 
-        SDL_BlitSurface(surfacesFromImages[i], NULL, tmpAtlasSurface, &sourceRects[i]);
+        SDL_BlitSurface(surfacesFromImages[i], NULL, tmpAtlasSurface, /*&sourceRects[i]*/ &vectorSprite[i].sourcerect);
         SDL_FreeSurface(surfacesFromImages[i]);
         surfacesFromImages[i] = nullptr;
     }
@@ -175,7 +185,7 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, size_t size, const char** filePath
             (int)bm); // должно быть SDL_BLENDMODE_BLEND (1)
 #endif
 
-    return true;
+
 }
 
 SpriteTable::SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder, bool active)
@@ -192,14 +202,7 @@ SpriteTable::SpriteTable(SDL_Renderer* r, SpriteTableBorderType& spriteBorder, b
     thisSpriteTableIsActive = active;
 }
 
-SpriteTable::~SpriteTable()
-{
-    if (atlasTexture)
-    {
-        SDL_DestroyTexture(atlasTexture);
-        atlasTexture = nullptr;
-    }
-}
+
 
 
 
@@ -214,8 +217,8 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
         return false;
     }
 
-    std::unique_ptr<Atlas> atlas = 
-        std::make_unique<Atlas> (r, spriteTableCountTotal, filePath);
+    atlas = 
+        std::make_unique<Atlas> (r, vectorSprite, spriteTableCountTotal, filePath);
     if (!atlas->Status())
     {
 #ifdef LOG
@@ -241,35 +244,36 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
 #endif
         return false;
     }
-    firstInit(atlas->GetSourceRects(), spriteBorder, spriteTableCountTotal);
-    atlasTexture = atlas->GetAtlasTexture();
-    mechanic.chRect.Init(mechanic.vectorSprite[0].transform.GetRect());
+    firstInit(spriteBorder, spriteTableCountTotal);
+    mechanic.chRect.Init(vectorSprite[0].transform.GetRect());
     mechanic.index = 0;
 
     return true;
 }
 
-void SpriteTable::firstInit(const std::vector<SDL_Rect>& atlasRects,
-                            SpriteTableBorderType& spriteBorder,
+void SpriteTable::firstInit(SpriteTableBorderType& spriteBorder,
                             const size_t spriteTableCountTotal)
 {
     auto startX = static_cast<float>(spriteBorder.spriteBorderRect.x + PADDING);
     auto startY = static_cast<float>(spriteBorder.spriteBorderRect.y + PADDING);
 
-    mechanic.vectorSprite.reserve(spriteTableCountTotal);
+
     for (size_t i = 0; i < spriteTableCountTotal; ++i)
     {
 
         if (spriteBorder.orientation == ESpriteBorderOrientation::HORIZONTAL)
         {
             auto spriteX = startX + i * (SPRITE_SIZE + PADDING);
-            Sprite s{atlasRects[i], spriteX, startY};
-            mechanic.vectorSprite.emplace_back(s);
+            vectorSprite[i].SetTransform(spriteX, startY);
+            vectorSprite[i].transform.SetOrigin();
+
         }
         else
         {
             auto spriteY = startY + i * (SPRITE_SIZE + PADDING);
-            mechanic.vectorSprite.emplace_back(atlasRects[i], startX, spriteY);
+            vectorSprite[i].SetTransform(startX, spriteY);
+            vectorSprite[i].transform.SetOrigin();
+
         }
     }
 }
@@ -335,12 +339,12 @@ void SpriteTable::CheckMoveLogic(SpriteTableBorderType& spriteTable) //-
         {
             [[likely]] case ESpriteBorderOrientation::HORIZONTAL:
             {
-                LastSpriteAtTheMiddle = mechanic.vectorSprite.back() == spriteTable.xSpriteMiddle;
+                LastSpriteAtTheMiddle = vectorSprite.back() == spriteTable.xSpriteMiddle;
                 break;
             }
             case ESpriteBorderOrientation::VERTICAL:
             {
-                LastSpriteAtTheMiddle = mechanic.vectorSprite.back() == spriteTable.ySpriteMiddle;
+                LastSpriteAtTheMiddle = vectorSprite.back() == spriteTable.ySpriteMiddle;
                 break;
             }
             default:
@@ -386,21 +390,21 @@ void SpriteTable::moveSprites(float delta) //-
     {
         mechanic.logic.MoveProcess = false;
         mechanic.fullPath = SPRITESIZE_WITH_PADDING;
-        for (auto& sprite : mechanic.vectorSprite)
+        for (auto& sprite : vectorSprite)
         {
             sprite.transform.SetOffsetFromOrigin(mechanic.sign * mechanic.fullPath);
         }
         mechanic.fullPath = 0.0f;
         mechanic.logic.MovesSprites = false;
         mechanic.logic.MovesWhite = true;
-        for (auto& sprite : mechanic.vectorSprite)
+        for (auto& sprite : vectorSprite)
         {
             sprite.transform.SetOrigin();
         }
     }
     else
     {
-        for (auto& sprite : mechanic.vectorSprite)
+        for (auto& sprite : vectorSprite)
         {
             sprite.transform.SetOffsetFromOrigin(mechanic.sign * mechanic.fullPath);
         }
@@ -411,27 +415,27 @@ void SpriteTable::moveSprites(float delta) //-
 bool SpriteTable::Cant_move_left(SpriteTableBorderType& spriteTableBorder) //-
 {
     bool white_at_the_left{mechanic.index == 0};
-    bool sprites_at_the_left{mechanic.vectorSprite.front() == spriteTableBorder.xSpriteFirst};
+    bool sprites_at_the_left{vectorSprite.front() == spriteTableBorder.xSpriteFirst};
     return white_at_the_left && sprites_at_the_left;
 }
 
 bool SpriteTable::Cant_move_right(SpriteTableBorderType& spriteTableBorder) //-
 {
     bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
-    bool srpites_at_right_end{mechanic.vectorSprite.back() == spriteTableBorder.xSpriteMiddle};
+    bool srpites_at_right_end{vectorSprite.back() == spriteTableBorder.xSpriteMiddle};
     return white_at_the_middle && srpites_at_right_end;
 }
 #else
 bool SpriteTable::Cant_move_top(SpriteTableBorderType& spriteTableBorder)
 {
     bool white_at_the_top{mechanic.index == 0};
-    bool sprites_at_the_top{mechanic.vectorSprite.front() == spriteTableBorder.ySpriteFirst};
+    bool sprites_at_the_top{vectorSprite.front() == spriteTableBorder.ySpriteFirst};
     return white_at_the_top && sprites_at_the_top;
 }
 bool SpriteTable::Cant_move_bottom(SpriteTableBorderType& spriteTableBorder)
 {
     bool white_at_the_middle{mechanic.index == MIDDLE_INDEX};
-    bool srpites_at_bottom_end{mechanic.vectorSprite.back() == spriteTableBorder.ySpriteMiddle};
+    bool srpites_at_bottom_end{vectorSprite.back() == spriteTableBorder.ySpriteMiddle};
     return white_at_the_middle && srpites_at_bottom_end;
 }
 #endif
@@ -455,7 +459,7 @@ void SpriteTable::IncTextureID()
 {
     mechanic.textureID += 1;
     if (mechanic.textureID >= static_cast<int>(spriteTableCountTotal))
-        mechanic.textureID = static_cast<int>(spriteTableCountTotal);
+        mechanic.textureID = static_cast<int>(spriteTableCountTotal - 1);
 }
 
 void SpriteTable::DecTextureID()
