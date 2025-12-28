@@ -172,24 +172,31 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         {
         }
     }
-    size_t widing {10};
+    size_t widing {10}; // widing назначаем для теста
     EditorTableTile_rows = static_cast<size_t>(tableBorder->GetTheRealRC().y);
-    size_t EditorTableTile_cols = static_cast<size_t>(tableBorder->GetTheRealRC().x) + widing;
+    EditorTableTile_cols = static_cast<size_t>(tableBorder->GetTheRealRC().x) + widing;
 #ifdef LOG
     std::cout << "Editor table tile array: [" << EditorTableTile_rows <<
         "][" << EditorTableTile_cols << "]\n";
-    size_t editorTilesSize {EditorTableTile_rows * EditorTableTile_cols};
-    EditorTiles.assign(editorTilesSize, {-1});
 #endif
-
-    
+    size_t editorTilesSize {EditorTableTile_rows * EditorTableTile_cols};
+    editorTiles.assign(editorTilesSize, {-1});
+   
 }
 
 void EditorTable::PutTextureOnTile(int row, int col, int atlasID)
 {
+    bool cursorIsOutOfRows {static_cast<size_t>(row) < 0 ||
+        static_cast<size_t>(row) > EditorTableTile_rows};
+    bool cursorIsOutOfCols {static_cast<size_t>(col) < 0 ||
+        static_cast<size_t>(col) > EditorTableTile_cols};
 
-    EditorTiles.at(static_cast<size_t>(row) * EditorTableTile_cols + startX +
-        static_cast<size_t>(col)).tileId = atlasID;
+    if (!cursorIsOutOfRows || !cursorIsOutOfCols)
+    {
+        editorTiles[static_cast<size_t>(row) * EditorTableTile_cols + startX +
+            static_cast<size_t>(col)].tileId = atlasID;
+    }
+
 }
 
 

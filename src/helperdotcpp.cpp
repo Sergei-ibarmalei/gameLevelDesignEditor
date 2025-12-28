@@ -1,7 +1,5 @@
 #include "Helper/helperdot.h"
 
-static const char* helperDotPath = "assets/helperDot_1.png";
-
 
 HelperDot::HelperDot(
         const SDL_Rect& border,
@@ -16,6 +14,16 @@ HelperDot::HelperDot(
 void HelperDot::initAllHelperDotsDestRects(const SDL_Rect& border,
     const SDL_Point& realRowsColsNomber)
 {
+    if (realRowsColsNomber.y <= 0 || realRowsColsNomber.x <= 0)
+    {
+#ifdef LOG
+        std::cout << "Cannot create helper dot class, real rows or cols are less " <<
+            " than zero, abort.\n";
+#endif
+        init = false;
+        return;
+    }
+
     int startx = border.x + static_cast<int>(SPRITE_SIZE);
     int starty = border.y + static_cast<int>(SPRITE_SIZE);
 

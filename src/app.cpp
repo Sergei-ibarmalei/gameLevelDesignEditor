@@ -2,7 +2,7 @@
 #include <iostream>
 
 static void showSpriteTableBorder(SDL_Renderer* renderer,
-                                  SpriteTableBorderType& spriteTableBorder,
+                                  const SpriteTableBorderType& spriteTableBorder,
                                   const SDL_Color c);
 static void showSimpleSpriteVector(SDL_Renderer* renderer,
                                    SDL_Texture* texture,
@@ -81,7 +81,7 @@ bool App::initEditorTableAndSpriteTable()
 #else
     spriteBorderOrientation = ESpriteBorderOrientation::HORIZONTAL;
 #endif
-    defineSpriteBorderSizes(spriteBorderOrientation, spriteTableBorder);
+    DefineSpriteBorderSizes(spriteBorderOrientation, spriteTableBorder);
     // Editor table изначально активен
     editorTable =
         std::make_unique<EditorTable>(spriteBorderOrientation, spriteTableBorder, 20, 29, true);
@@ -176,7 +176,7 @@ void App::run()
                             spriteTable->ChosenRectIsAtRightEnd();
                             break;
                         }
-                        spriteTable->SetDirectrion(EDirection::RIGHT);
+                        spriteTable->SetDirection(EDirection::RIGHT);
                         spriteTable->CheckMoveLogic(spriteTableBorder);
                         spriteTable->IncTextureID();
                         break;
@@ -192,7 +192,7 @@ void App::run()
                             spriteTable->ChosenRectIsAtLeftEnd();
                             break;
                         }
-                        spriteTable->SetDirectrion(EDirection::LEFT);
+                        spriteTable->SetDirection(EDirection::LEFT);
                         spriteTable->CheckMoveLogic(spriteTableBorder);
                         spriteTable->DecTextureID();
                         break;
@@ -212,7 +212,7 @@ void App::run()
                             spriteTable->ChosenRectIsAtBottomEnd();
                             break;
                         }
-                        spriteTable->SetDirectrion(EDirection::DOWN);
+                        spriteTable->SetDirection(EDirection::DOWN);
                         spriteTable->CheckMoveLogic(spriteTableBorder);
                         spriteTable->IncTextureID();
                         break;
@@ -228,7 +228,7 @@ void App::run()
                             spriteTable->ChosenRectIsAtTopEnd();
                             break;
                         }
-                        spriteTable->SetDirectrion(EDirection::UP);
+                        spriteTable->SetDirection(EDirection::UP);
                         spriteTable->CheckMoveLogic(spriteTableBorder);
                         spriteTable->DecTextureID();
                         break;
@@ -307,7 +307,7 @@ void App::shutdown()
     SDL_Quit();
 }
 
-void App::defineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTableBorderType& stb)
+void App::DefineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTableBorderType& stb)
 {
     switch (orientation)
     {
@@ -372,8 +372,13 @@ void App::HandleButton(const SDL_MouseButtonEvent& e)
 {
     if (e.button == SDL_BUTTON_LEFT && e.state == SDL_PRESSED)
     {
-        editorTable->PutTextureOnTile(mouseAction.row, mouseAction.col,
-            spriteTable->GetSpriteTableTextureID());
+        if (!editorTable->IsActive()) return;
+
+        if (doShowCursor)
+        {
+            editorTable->PutTextureOnTile(mouseAction.row, mouseAction.col,
+                spriteTable->GetSpriteTableTextureID());
+        }
 #ifdef LOG
         std::cout << "["<< mouseAction.row << ',' << mouseAction.col <<
             "] id:" << spriteTable->GetSpriteTableTextureID() << '\n';
@@ -393,7 +398,7 @@ void App::CalculateLightBox(const SDL_MouseMotionEvent& e)
 }
 
 static void showSpriteTableBorder(SDL_Renderer* renderer,
-                                  SpriteTableBorderType& spriteTableBorder,
+                                  const SpriteTableBorderType& spriteTableBorder,
                                   const SDL_Color c)
 {
     SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
@@ -404,7 +409,7 @@ static void showSimpleSpriteVector(SDL_Renderer* renderer,
                                    SDL_Texture* texture,
                                    const std::vector<Sprite>& vectorSprite)
 {
-    for (auto& sprite : vectorSprite)
+    for (const auto& sprite : vectorSprite)
     {
         SDL_RenderCopyF(renderer, texture, &sprite.sourcerect, &sprite.transform.GetRect());
     }

@@ -7,6 +7,7 @@
 #include <SDL_image.h>
 #include <vector>
 #include <memory>
+#include <cmath>
 
 struct Transform
 {
@@ -156,7 +157,7 @@ class SpriteTable
     SpriteTable& operator=(const SpriteTable&) = delete;
     SpriteTable& operator=(SpriteTable&&) = delete;
 
-    const bool IsActive() const { return thisSpriteTableIsActive; }
+    bool IsActive() const { return thisSpriteTableIsActive; }
     bool Status() const { return init; }
     void SetActive(bool a) { thisSpriteTableIsActive = a; }
     const std::vector<Sprite>& VectorSprite() const { return vectorSprite; }
@@ -177,7 +178,7 @@ class SpriteTable
         mechanic.logic.MoveProcess = true;
     }
 
-    void SetDirectrion(EDirection dir) //-
+    void SetDirection(EDirection dir) //-
     {
         mechanic.sign = static_cast<int>(dir);
         mechanic.index += mechanic.sign;

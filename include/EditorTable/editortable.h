@@ -48,7 +48,7 @@ class EditorTable
   private:
     bool init{true};
     bool thisTableIsActive{false};
-    std::vector<Tile> EditorTiles;
+    std::vector<Tile> editorTiles;
     std::unique_ptr<EditorTableBorder> tableBorder;
     size_t startX {0};
     size_t EditorTableTile_rows {0}; // total rows

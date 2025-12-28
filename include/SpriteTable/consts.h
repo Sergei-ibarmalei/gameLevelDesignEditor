@@ -24,7 +24,7 @@ struct SpriteTableBorderType
     {
         SDL_Rect horizontal;
         SDL_Rect vertical;
-    } spriteBorderSizes;
+    } spriteBorderSizes {};
 
     float xSpriteMiddle{0.0f};
     float ySpriteMiddle{0.0f};

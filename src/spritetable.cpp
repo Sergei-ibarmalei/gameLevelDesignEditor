@@ -1,4 +1,5 @@
 #include <new>
+#include <algorithm>
 #include "SpriteTable/spritetable.h"
 
 const char* filePath[] = {"assets/one.png",
@@ -177,14 +178,20 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, std::vector<Sprite>& vectorSprite,
     tmpAtlasSurface = nullptr;
 
     // Установка blend mode на созданную текстуру атласа
-    SDL_SetTextureBlendMode(atlasTexture, SDL_BLENDMODE_BLEND);
+    //SDL_SetTextureBlendMode(atlasTexture, SDL_BLENDMODE_BLEND);
+    if (SDL_SetTextureBlendMode(atlasTexture, SDL_BLENDMODE_BLEND))
+    {
+#ifdef LOG
+        std::cout << "SDL_SetTextureBlendMode failed.\n";
+#endif
+    }
 #ifdef LOG
     // Проверка blend mode созданной текстуры атласа
     SDL_GetTextureBlendMode(atlasTexture, &bm);
     SDL_Log("\nTexture blend mode = %d",
             (int)bm); // должно быть SDL_BLENDMODE_BLEND (1)
 #endif
-
+    return true;
 
 }
 
@@ -227,23 +234,6 @@ bool SpriteTable::initSpriteTable(SDL_Renderer* r, SpriteTableBorderType& sprite
         return false;
     }
 
-    
-
-    if (!atlas)
-    {
-#ifdef LOG
-        std::cout << "Cannot allocate memory for atlas, abort.\n";
-#endif
-        return false;
-    }
-
-    if (!atlas->Status())
-    {
-#ifdef LOG
-        std::cout << "Cannot initiate atlas, abort.\n";
-#endif
-        return false;
-    }
     firstInit(spriteBorder, spriteTableCountTotal);
     mechanic.chRect.Init(vectorSprite[0].transform.GetRect());
     mechanic.index = 0;
