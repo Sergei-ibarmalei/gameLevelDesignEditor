@@ -4,6 +4,7 @@
 #include <vector>
 #include "SpriteTable/consts.h"
 #include "logs.h"
+#include "slice.h"
 
 
 class HelperDot
@@ -14,11 +15,11 @@ private:
     std::vector<SDL_Point>allHelperDots;
 
     void initAllHelperDotsDestRects(const SDL_Rect& border, 
-        const SDL_Point& realRowsColsNomber);
+        const ArraySizes& slice);
 
 public:
     HelperDot(const SDL_Rect& border, 
-        const SDL_Point& realRowsColsNomber);
+        const ArraySizes& slice);
     ~HelperDot() = default;
     HelperDot(const HelperDot&) = delete;
     HelperDot& operator=(const HelperDot&) = delete;

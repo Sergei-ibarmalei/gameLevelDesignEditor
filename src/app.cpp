@@ -11,12 +11,10 @@ static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
 static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r, const SDL_Color c);
 static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma);
 static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>& dots);
-
-
-
-
-
-
+// static void showTiles(SDL_Renderer* renderer, EditorTiles& editorTiles);
+static void showTiles(SDL_Renderer* renderer,
+                      const EditorTable& et,
+                      const SpriteTable& st);
 
 bool App::initSdl(int width, int height)
 {
@@ -45,8 +43,8 @@ bool App::initSdl(int width, int height)
         return false;
     }
 
-    renderer_.reset(
-        SDL_CreateRenderer(window_.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+    renderer_.reset(SDL_CreateRenderer(
+        window_.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
     if (!renderer_)
     {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
@@ -64,8 +62,6 @@ bool App::initSdl(int width, int height)
         std::cout << "RenderSetVSync failed " << SDL_GetError() << '\n';
 #endif
     }
-
-
 
     // Включаем альфа-смешивание для рендерера
     SDL_SetRenderDrawBlendMode(renderer_.get(), SDL_BLENDMODE_BLEND);
@@ -120,7 +116,7 @@ void App::run()
     if (!initEditorTableAndSpriteTable())
         return;
     editorTableBorder = editorTable->GetIntTableBorder();
-    HelperDot helperDot(editorTableBorder, editorTable->GetRealRowsColsEditorTable());
+    HelperDot helperDot(editorTableBorder, editorTable->GetRealAndSliseRowCol().slice);
     if (!helperDot.Status())
         return;
 
@@ -262,7 +258,9 @@ void App::run()
         showSpriteTableBorder(
             Renderer(), spriteTableBorder, spriteTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
 
-        if (doShowCursor) 
+        showTiles(Renderer(), *editorTable, *spriteTable);
+
+        if (doShowCursor)
         {
             showLightBox(Renderer(), mouseAction);
         }
@@ -335,18 +333,15 @@ void App::DefineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTa
     }
 }
 
-
-void  App::IsMouseOnEditorTable(const SDL_MouseMotionEvent& e)
+void App::IsMouseOnEditorTable(const SDL_MouseMotionEvent& e)
 {
-    if ((e.x >= editorTableBorder.x) &&
-        (e.x < editorTableBorder.x + editorTableBorder.w) &&
-        (e.y >= editorTableBorder.y) &&
-        (e.y < editorTableBorder.y + editorTableBorder.h))
+    if ((e.x >= editorTableBorder.x) && (e.x < editorTableBorder.x + editorTableBorder.w) &&
+        (e.y >= editorTableBorder.y) && (e.y < editorTableBorder.y + editorTableBorder.h))
     {
         doShowCursor = true;
     }
-    else doShowCursor = false;
-    
+    else
+        doShowCursor = false;
 }
 
 static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>& dots)
@@ -356,32 +351,30 @@ static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>&
     SDL_RenderDrawPoints(renderer, dots.data(), (int)dots.size());
 }
 
-
-
 void App::HandleMouseMotion(const SDL_MouseMotionEvent& e)
 {
 
     if (doShowCursor)
     {
-        CalculateLightBox(e);       
+        CalculateLightBox(e);
     }
-
 }
 
 void App::HandleButton(const SDL_MouseButtonEvent& e)
 {
     if (e.button == SDL_BUTTON_LEFT && e.state == SDL_PRESSED)
     {
-        if (!editorTable->IsActive()) return;
+        if (!editorTable->IsActive())
+            return;
 
         if (doShowCursor)
         {
-            editorTable->PutTextureOnTile(mouseAction.row, mouseAction.col,
-                spriteTable->GetSpriteTableTextureID());
+            editorTable->PutTextureOnTile(
+                mouseAction.row, mouseAction.col, spriteTable->GetSpriteTableTextureID());
         }
 #ifdef LOG
-        std::cout << "["<< mouseAction.row << ',' << mouseAction.col <<
-            "] id:" << spriteTable->GetSpriteTableTextureID() << '\n';
+        std::cout << "[" << mouseAction.row << ',' << mouseAction.col
+                  << "] id:" << spriteTable->GetSpriteTableTextureID() << '\n';
 #endif
     }
 }
@@ -433,5 +426,49 @@ static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma)
     SDL_RenderFillRect(renderer, &ma.Box);
 }
 
+static void showTiles(SDL_Renderer* renderer,
+                      const EditorTable& et,
+                      const SpriteTable& st)
+
+{
+
+    // вектор рисуется не полностью, берется его "срез", который
+    // хранится в editorTable: editorTable->GetRealAndSliseRowCol()
+    // RealAndSliceRowCol realAndSliceRowCol {et->GetRealAndSliceRowCol};
+    const RealAndSliceRowCol& realAndSliceRowCol= et.GetRealAndSliseRowCol();
+    const auto& tiles = et.GetEditorTiles();
+    const SDL_Rect& border = et.GetIntTableBorder();
+
+    SDL_Rect dstRect{0, 0, static_cast<int>(SPRITE_SIZE), static_cast<int>(SPRITE_SIZE)};
+
+    //size_t id{static_cast<size_t>(st.TextureID())};
+ 
+    for (size_t r = 0; r < realAndSliceRowCol.slice.rows; ++r)
+    {
+        dstRect.y = border.y + static_cast<int>(r * SPRITE_SIZE);
+
+        for (size_t c = 0; c < realAndSliceRowCol.slice.cols; ++c)
+        {
+            dstRect.x = border.x + static_cast<int>(c * SPRITE_SIZE);
+
+            auto start = et.GetTiles().startX; // на будущее
+
+            // определяем текущий индекс в рабочем полотне
+            const size_t idx {r * realAndSliceRowCol.real.cols + start + c};
+            if (idx >= tiles.editorTilesVector.size()) continue;
+
+            // находим tileId в рабочем векторе
+            const int tileId {et.GetTiles().editorTilesVector[idx].tileId};
+
+            // -1 это пустая ячейка, не рисуем
+            if (tileId < 0) continue;
+            if (static_cast<size_t>(tileId) >= st.VectorSprite().size()) continue;
 
 
+                SDL_RenderCopy(renderer, st.AtlasTexture(), 
+                    &st.VectorSprite()[tileId].sourcerect,
+                    &dstRect);
+            
+        }
+    }
+}

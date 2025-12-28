@@ -4,6 +4,7 @@
 static constexpr int BORDER_SPRITEBORDER_PADDING{10};
 
 EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
+                                     ArraySizes& theSlice,
                                      int rows,
                                      int cols,
                                      float sprite_size)
@@ -72,8 +73,19 @@ EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
 
             // Реальное количество rows cols нам необходимо для расчетов 
             // класса helperdot
-            theRealRowsAndCols.x = cols;
-            theRealRowsAndCols.y = rows;
+            //theRealRowsAndCols.x = cols;
+            //theRealRowsAndCols.y = rows;
+
+
+            // Определяем размеры "среза" вектора спрайтов для вывода на экран
+            // Размеры среза не в пикселях экрана, а в количестве строк и столбцов
+            // срез равняется размерам рабочей области EditorTable, поэтому
+            // width = cols, height = rows
+            //theRealRowsAndCols.width = static_cast<size_t>(cols);
+            //theRealRowsAndCols.height = static_cast<size_t>(rows);
+            theSlice.rows = static_cast<size_t>(rows);
+            theSlice.cols = static_cast<size_t>(cols);
+
             break;
         }
         case ESpriteBorderOrientation::VERTICAL:
@@ -109,8 +121,12 @@ EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
                     wrongHeight = height + leftY > WINDOW_H;
                 }
             }
-            theRealRowsAndCols.x = cols;
-            theRealRowsAndCols.y = rows;
+            //theRealRowsAndCols.x = cols;
+            //theRealRowsAndCols.y = rows;
+            //theRealRowsAndCols.width = static_cast<size_t>(cols);
+            //theRealRowsAndCols.height = static_cast<size_t>(rows);
+            theSlice.cols = static_cast<size_t>(cols);
+            theSlice.rows = static_cast<size_t>(rows);
             break;
         }
         default:
@@ -134,7 +150,8 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
 {
     thisTableIsActive = isActive;
 
-    tableBorder = std::make_unique<EditorTableBorder>(stb, rows, cols, SPRITE_SIZE);
+    tableBorder = std::make_unique<EditorTableBorder>(stb, realAndSliceRowCol.slice,
+                            rows, cols, SPRITE_SIZE);
     if (!tableBorder->init)
     {
 #ifdef LOG
@@ -172,29 +189,38 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         {
         }
     }
-    size_t widing {10}; // widing назначаем для теста
-    EditorTableTile_rows = static_cast<size_t>(tableBorder->GetTheRealRC().y);
-    EditorTableTile_cols = static_cast<size_t>(tableBorder->GetTheRealRC().x) + widing;
+    size_t widingCols {10}; // widing назначаем для теста
+    realAndSliceRowCol.real.rows = realAndSliceRowCol.slice.rows;
+    realAndSliceRowCol.real.cols = realAndSliceRowCol.slice.cols + widingCols;
 #ifdef LOG
-    std::cout << "Editor table tile array: [" << EditorTableTile_rows <<
-        "][" << EditorTableTile_cols << "]\n";
+    std::cout << "Editor table tile array: [" << realAndSliceRowCol.real.rows <<
+        "][" << realAndSliceRowCol.real.cols << "]\n";
 #endif
-    size_t editorTilesSize {EditorTableTile_rows * EditorTableTile_cols};
-    editorTiles.assign(editorTilesSize, {-1});
+    size_t editorTilesSize {realAndSliceRowCol.real.cols * 
+        realAndSliceRowCol.real.rows};
+    editorTiles.editorTilesVector.assign(editorTilesSize, {-1});
    
 }
 
 void EditorTable::PutTextureOnTile(int row, int col, int atlasID)
 {
-    bool cursorIsOutOfRows {static_cast<size_t>(row) < 0 ||
-        static_cast<size_t>(row) > EditorTableTile_rows};
-    bool cursorIsOutOfCols {static_cast<size_t>(col) < 0 ||
-        static_cast<size_t>(col) > EditorTableTile_cols};
+    if (row < 0 || col < 0) return;
+    const auto sr = realAndSliceRowCol.slice.rows;
+    const auto sc = realAndSliceRowCol.slice.cols;
 
-    if (!cursorIsOutOfRows || !cursorIsOutOfCols)
+    if (static_cast<size_t>(row) >= sr) return;
+    if (static_cast<size_t>(col) >= sc) return;
+
+    const size_t idx = static_cast<size_t>(row) * realAndSliceRowCol.real.cols +
+        static_cast<size_t>(editorTiles.startX) +
+        static_cast<size_t>(col);
+
+
+
+
+    if (idx >= editorTiles.editorTilesVector.size()) return;
     {
-        editorTiles[static_cast<size_t>(row) * EditorTableTile_cols + startX +
-            static_cast<size_t>(col)].tileId = atlasID;
+        editorTiles.editorTilesVector[idx].tileId = atlasID;
     }
 
 }

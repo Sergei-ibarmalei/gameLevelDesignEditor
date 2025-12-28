@@ -162,7 +162,7 @@ class SpriteTable
     void SetActive(bool a) { thisSpriteTableIsActive = a; }
     const std::vector<Sprite>& VectorSprite() const { return vectorSprite; }
     SDL_Texture* AtlasTexture() const { return atlas->GetAtlasTexture(); }
-
+    int TextureID() const {return mechanic.textureID;}
     const SDL_FRect& GetChosenRect() const { return mechanic.chRect.transform.GetRect(); }
     int GetSpriteTableTextureID() const { return mechanic.textureID; }
     void MovingInSpriteTable(float deltaTime);

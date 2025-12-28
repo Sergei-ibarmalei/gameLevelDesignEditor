@@ -1,20 +1,23 @@
 #include "Helper/helperdot.h"
 
 
-HelperDot::HelperDot(
-        const SDL_Rect& border,
-        const SDL_Point& realRowsColsNomber)
+HelperDot::HelperDot(const SDL_Rect& border,
+        const ArraySizes& slice)
 {
-    initAllHelperDotsDestRects(border, realRowsColsNomber);
+    // slice - в данном случае это реальное количество row cols
+    // в editorTable, т.е. на рабочем полотне
+    // знание этих количеств помогает нам расчитать необходимое количество
+    // впомогательных точек на экране
+    initAllHelperDotsDestRects(border, slice);
  
 }
 
 
 
 void HelperDot::initAllHelperDotsDestRects(const SDL_Rect& border,
-    const SDL_Point& realRowsColsNomber)
+    const ArraySizes& slice)
 {
-    if (realRowsColsNomber.y <= 0 || realRowsColsNomber.x <= 0)
+    if (slice.rows <= 0 || slice.cols <= 0)
     {
 #ifdef LOG
         std::cout << "Cannot create helper dot class, real rows or cols are less " <<
@@ -28,8 +31,8 @@ void HelperDot::initAllHelperDotsDestRects(const SDL_Rect& border,
     int starty = border.y + static_cast<int>(SPRITE_SIZE);
 
     
-    size_t dotRows {static_cast<size_t>(realRowsColsNomber.y - 1)};
-    size_t dotCols {static_cast<size_t>(realRowsColsNomber.x - 1)};
+    size_t dotRows {static_cast<size_t>(slice.rows - 1)};
+    size_t dotCols {static_cast<size_t>(slice.cols - 1)};
     
     allHelperDots.reserve(dotRows * dotCols);
     for (size_t r = 0; r < dotRows; r++)
