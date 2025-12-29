@@ -3,11 +3,8 @@
 
 static constexpr int BORDER_SPRITEBORDER_PADDING{10};
 
-EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
-                                     ArraySizes& theSlice,
-                                     int rows,
-                                     int cols,
-                                     float sprite_size)
+EditorTableBorder::EditorTableBorder(
+    SpriteTableBorderType& stb, ArraySizes& theSlice, int rows, int cols, float sprite_size)
 {
     if (rows < EDITOR_TABLEBORDER_MINROW || cols < EDITOR_TABLEBORDER_MINCOLS)
     {
@@ -71,18 +68,17 @@ EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
                 }
             }
 
-            // Реальное количество rows cols нам необходимо для расчетов 
+            // Реальное количество rows cols нам необходимо для расчетов
             // класса helperdot
-            //theRealRowsAndCols.x = cols;
-            //theRealRowsAndCols.y = rows;
-
+            // theRealRowsAndCols.x = cols;
+            // theRealRowsAndCols.y = rows;
 
             // Определяем размеры "среза" вектора спрайтов для вывода на экран
             // Размеры среза не в пикселях экрана, а в количестве строк и столбцов
             // срез равняется размерам рабочей области EditorTable, поэтому
             // width = cols, height = rows
-            //theRealRowsAndCols.width = static_cast<size_t>(cols);
-            //theRealRowsAndCols.height = static_cast<size_t>(rows);
+            // theRealRowsAndCols.width = static_cast<size_t>(cols);
+            // theRealRowsAndCols.height = static_cast<size_t>(rows);
             theSlice.rows = static_cast<size_t>(rows);
             theSlice.cols = static_cast<size_t>(cols);
 
@@ -121,10 +117,10 @@ EditorTableBorder::EditorTableBorder(SpriteTableBorderType& stb,
                     wrongHeight = height + leftY > WINDOW_H;
                 }
             }
-            //theRealRowsAndCols.x = cols;
-            //theRealRowsAndCols.y = rows;
-            //theRealRowsAndCols.width = static_cast<size_t>(cols);
-            //theRealRowsAndCols.height = static_cast<size_t>(rows);
+            // theRealRowsAndCols.x = cols;
+            // theRealRowsAndCols.y = rows;
+            // theRealRowsAndCols.width = static_cast<size_t>(cols);
+            // theRealRowsAndCols.height = static_cast<size_t>(rows);
             theSlice.cols = static_cast<size_t>(cols);
             theSlice.rows = static_cast<size_t>(rows);
             break;
@@ -150,8 +146,8 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
 {
     thisTableIsActive = isActive;
 
-    tableBorder = std::make_unique<EditorTableBorder>(stb, realAndSliceRowCol.slice,
-                            rows, cols, SPRITE_SIZE);
+    tableBorder =
+        std::make_unique<EditorTableBorder>(stb, realAndSliceRowCol.slice, rows, cols, SPRITE_SIZE);
     if (!tableBorder->init)
     {
 #ifdef LOG
@@ -189,52 +185,85 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
         {
         }
     }
-    size_t widingCols {10}; // widing назначаем для теста
+    size_t widingCols{2}; // widing назначаем для теста
     realAndSliceRowCol.real.rows = realAndSliceRowCol.slice.rows;
     realAndSliceRowCol.real.cols = realAndSliceRowCol.slice.cols + widingCols;
 #ifdef LOG
-    std::cout << "Editor table tile array: [" << realAndSliceRowCol.real.rows <<
-        "][" << realAndSliceRowCol.real.cols << "]\n";
+    std::cout << "Editor table tile array: [" << realAndSliceRowCol.real.rows << "]["
+              << realAndSliceRowCol.real.cols << "]\n";
 #endif
-    size_t editorTilesSize {realAndSliceRowCol.real.cols * 
-        realAndSliceRowCol.real.rows};
+    size_t editorTilesSize{realAndSliceRowCol.real.cols * realAndSliceRowCol.real.rows};
     editorTiles.editorTilesVector.assign(editorTilesSize, {-1});
-   
 }
 
 bool EditorTable::checkIsCursorValid(int row, int col, size_t& idx)
 {
-    if (row < 0 || col < 0) return false;
+    if (row < 0 || col < 0)
+        return false;
     const auto sr = realAndSliceRowCol.slice.rows;
     const auto sc = realAndSliceRowCol.slice.cols;
 
-    if (static_cast<size_t>(row) >= sr) return false;
-    if (static_cast<size_t>(col) >= sc) return false;
+    if (static_cast<size_t>(row) >= sr)
+        return false;
+    if (static_cast<size_t>(col) >= sc)
+        return false;
 
     idx = static_cast<size_t>(row) * realAndSliceRowCol.real.cols +
-        static_cast<size_t>(editorTiles.startX) +
-        static_cast<size_t>(col);
-    if (idx >= editorTiles.editorTilesVector.size()) return false;
+          static_cast<size_t>(editorTiles.startX) + static_cast<size_t>(col);
+    if (idx >= editorTiles.editorTilesVector.size())
+        return false;
+
+    if (editorTiles.startX < 0)
+        return false;
+    if (static_cast<size_t>(editorTiles.startX) + static_cast<size_t>(col) >=
+        realAndSliceRowCol.real.cols)
+        return false;
+
     return true;
 }
 
 void EditorTable::PutTextureOnTile(int row, int col, int atlasID)
 {
 
-    size_t idx {};
-    if (!checkIsCursorValid(row, col, idx)) return;
-     editorTiles.editorTilesVector[idx].tileId = atlasID;
+    size_t idx{};
+    if (!checkIsCursorValid(row, col, idx))
+        return;
+    editorTiles.editorTilesVector[idx].tileId = atlasID;
 }
 
 void EditorTable::RemoveTextureOnTile(int row, int col)
 {
-    size_t idx {};
-    if (!checkIsCursorValid(row, col, idx)) return;
+    size_t idx{};
+    if (!checkIsCursorValid(row, col, idx))
+        return;
     editorTiles.editorTilesVector[idx].tileId = -1;
-
 }
 
+// при нажатой клавиши "вправо" рабочее полотно движется ВЛЕВО
+void EditorTable::MoveCanvasLeft()
+{
+    const int maxStartX = 
+        static_cast<int>(realAndSliceRowCol.real.cols - realAndSliceRowCol.slice.cols);
 
+    if (editorTiles.startX >= maxStartX)
+    {
+#ifdef LOG
+        std::cout << "Cannot moving editor table to left, stop.\n";
+#endif
+        return;
+    }
+    editorTiles.startX += 1;
+}
 
-
-
+// при нажатой клавише "влево" рабочее полотно движется ВПРАВО
+void EditorTable::MoveCanvasRight()
+{
+    if (editorTiles.startX <= 0)
+    {
+#ifdef LOG
+        std::cout << "Cannot moving editor table to right, stop\n";
+#endif
+        return;
+    }
+    editorTiles.startX -= 1;
+}

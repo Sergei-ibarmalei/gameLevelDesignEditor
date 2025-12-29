@@ -36,10 +36,6 @@ struct EditorTableBorder
     float height{0};
     bool init{true};
     bool active{false};
-    //SDL_Point theRealRowsAndCols {0, 0};
-    //VectorSpriteSlice theRealRowsAndCols {};
-    //ArraySizes theRealArrayOfTiles;
-    //ArraySizes theSlice;
     SDL_FRect border{};
     SDL_Rect intBorder{};
 
@@ -53,8 +49,6 @@ struct EditorTableBorder
     void SetActive(bool a) { active = a; }
     const SDL_FRect& GetBorder() const { return border; }
     const SDL_Rect& GetIntBorder() const { return intBorder; }
-    //const SDL_Point& GetTheRealRC() const {return theRealRowsAndCols;}
-    //const VectorSpriteSlice& GetSliseSizes() const {return theRealRowsAndCols;}
 };
 
 
@@ -95,6 +89,8 @@ class EditorTable
     void PutTextureOnTile(int row, int col, int atlasID);
     void RemoveTextureOnTile(int row, int col);
     const EditorTiles& GetEditorTiles() const  {return editorTiles;}
+    void MoveCanvasLeft();
+    void MoveCanvasRight();
 };
 
 

@@ -62,9 +62,7 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, std::vector<Sprite>& vectorSprite,
 {
     // Вектор для хранения SDL_Surface от каждого изображения из filePath
     std::vector<SDL_Surface*> surfacesFromImages(size, nullptr);
-    //sourceRects.reserve(size);
 
-    //vectorSprite.reserve(size);
     vectorSprite.assign(size, {});
 
     // загружаем изображения, делаем из них surface
@@ -117,8 +115,8 @@ bool Atlas::MakeAtlas(SDL_Renderer* renderer, std::vector<Sprite>& vectorSprite,
         destRect.w = tmpSurface->w;
         destRect.h = tmpSurface->h;
 
-        //sourceRects.emplace_back(destRect);
-        vectorSprite.at(i).sourcerect = destRect;
+ 
+        vectorSprite[i].sourcerect = destRect;
 
         surfacesFromImages[i] = tmpSurface;
 

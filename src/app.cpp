@@ -11,10 +11,10 @@ static void showChosenRect(SDL_Renderer* renderer, const SDL_FRect& r);
 static void showEditorTableBorder(SDL_Renderer* renderer, const SDL_Rect& r, const SDL_Color c);
 static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma);
 static void ShowHelperDots(SDL_Renderer* renderer, const std::vector<SDL_Point>& dots);
-// static void showTiles(SDL_Renderer* renderer, EditorTiles& editorTiles);
-static void showTiles(SDL_Renderer* renderer,
-                      const EditorTable& et,
-                      const SpriteTable& st);
+static void showTiles(SDL_Renderer* renderer, const EditorTable& et, const SpriteTable& st);
+
+// constexpr SDL_Color ClearColor {30, 30, 36, 255};
+constexpr SDL_Color ClearColor{11, 13, 38, 255};
 
 bool App::initSdl(int width, int height)
 {
@@ -162,71 +162,51 @@ void App::run()
 
                     case SDLK_RIGHT:
                     {
-                        if (!spriteTable->IsActive())
-                            break;
-                        spriteTable->MoveProcessStart();
 
-                        spriteTable->ChosenRectIsNotAtLeftEnd();
-                        if (spriteTable->Cant_move_right(spriteTableBorder))
-                        {
-                            spriteTable->ChosenRectIsAtRightEnd();
-                            break;
-                        }
-                        spriteTable->SetDirection(EDirection::RIGHT);
-                        spriteTable->CheckMoveLogic(spriteTableBorder);
-                        spriteTable->IncTextureID();
+                        if (spriteTable->IsActive())
+                            actionWithSpriteTable(EDirection::RIGHT);
+                        if (editorTable->IsActive())
+                            // при нажатой клавише "вправо" рабочее полотно идет ВЛЕВО
+                            editorTable->MoveCanvasLeft();
                         break;
                     }
                     case SDLK_LEFT:
                     {
-                        if (!spriteTable->IsActive())
-                            break;
-                        spriteTable->MoveProcessStart();
-                        spriteTable->ChosenRectIsNotAtRightEnd();
-                        if (spriteTable->Cant_move_left(spriteTableBorder))
-                        {
-                            spriteTable->ChosenRectIsAtLeftEnd();
-                            break;
-                        }
-                        spriteTable->SetDirection(EDirection::LEFT);
-                        spriteTable->CheckMoveLogic(spriteTableBorder);
-                        spriteTable->DecTextureID();
+                        if (spriteTable->IsActive())
+                            actionWithSpriteTable(EDirection::LEFT);
+                        if (editorTable->IsActive())
+                            // при нажатой клавише "влево" рабочее полотно идет ВПРАВО
+                            editorTable->MoveCanvasRight();
                         break;
                     }
                     default:
                     {
                     }
 #else
+                    case SDLK_RIGHT:
+                    {
+                        if (editorTable->IsActive())
+                            // при нажатой клавише "вправо" рабочее полотно идет ВЛЕВО
+                            editorTable->MoveCanvasLeft();
+                        break;
+                    }
+                    case SDLK_LEFT:
+                    {
+                        if (editorTable->IsActive())
+                            // при нажатой клавише "влево" рабочее полотно идет ВПРАВО
+                            editorTable->MoveCanvasRight();
+                        break;
+                    }
                     case SDLK_DOWN:
                     {
-                        if (!spriteTable->IsActive())
-                            break;
-                        spriteTable->MoveProcessStart();
-                        spriteTable->ChosenRectIsNotAtTopEnd();
-                        if (spriteTable->Cant_move_bottom(spriteTableBorder))
-                        {
-                            spriteTable->ChosenRectIsAtBottomEnd();
-                            break;
-                        }
-                        spriteTable->SetDirection(EDirection::DOWN);
-                        spriteTable->CheckMoveLogic(spriteTableBorder);
-                        spriteTable->IncTextureID();
+                        if (spriteTable->IsActive())
+                            actionWithSpriteTable(EDirection::DOWN);
                         break;
                     }
                     case SDLK_UP:
                     {
-                        if (!spriteTable->IsActive())
-                            break;
-                        spriteTable->MoveProcessStart();
-                        spriteTable->ChosenRectIsNotAtBottomEnd();
-                        if (spriteTable->Cant_move_top(spriteTableBorder))
-                        {
-                            spriteTable->ChosenRectIsAtTopEnd();
-                            break;
-                        }
-                        spriteTable->SetDirection(EDirection::UP);
-                        spriteTable->CheckMoveLogic(spriteTableBorder);
-                        spriteTable->DecTextureID();
+                        if (spriteTable->IsActive())
+                            actionWithSpriteTable(EDirection::UP);
                         break;
                     }
                     default:
@@ -242,12 +222,8 @@ void App::run()
         lastCounter = now;
 #endif
 
-        SDL_SetRenderDrawColor(Renderer(), 30, 30, 36, 255);
+        SDL_SetRenderDrawColor(Renderer(), ClearColor.r, ClearColor.g, ClearColor.b, ClearColor.a);
         SDL_RenderClear(Renderer());
-
-        showEditorTableBorder(
-            Renderer(), editorTableBorder, editorTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
-        spriteTable->MovingInSpriteTable(deltaTime);
 
         SDL_RenderSetClipRect(Renderer(), &spriteTableBorder.spriteBorderRect);
         showSimpleSpriteVector(
@@ -268,6 +244,10 @@ void App::run()
         // Показываем белые точки
 
         ShowHelperDots(Renderer(), helperDot.GetHelperDots());
+
+        showEditorTableBorder(
+            Renderer(), editorTableBorder, editorTable->IsActive() ? ACTIVE_COLOR : INACTIVE_COLOR);
+        spriteTable->MovingInSpriteTable(deltaTime);
 
         SDL_RenderPresent(Renderer());
 
@@ -303,6 +283,84 @@ void App::shutdown()
     window_.reset();
     IMG_Quit();
     SDL_Quit();
+}
+
+void App::actionWithSpriteTable(EDirection dir)
+{
+    spriteTable->MoveProcessStart();
+#ifdef POS_HORIZONTAL
+    switch (dir)
+    {
+        case EDirection::RIGHT:
+        {
+            spriteTable->ChosenRectIsNotAtLeftEnd();
+            if (spriteTable->Cant_move_right(spriteTableBorder))
+            {
+                spriteTable->ChosenRectIsAtRightEnd();
+                break;
+            }
+            spriteTable->SetDirection(EDirection::RIGHT);
+            spriteTable->CheckMoveLogic(spriteTableBorder);
+            spriteTable->IncTextureID();
+            break;
+        }
+        case EDirection::LEFT:
+        {
+            spriteTable->ChosenRectIsNotAtRightEnd();
+            if (spriteTable->Cant_move_left(spriteTableBorder))
+            {
+                spriteTable->ChosenRectIsAtLeftEnd();
+                break;
+            }
+            spriteTable->SetDirection(EDirection::LEFT);
+            spriteTable->CheckMoveLogic(spriteTableBorder);
+            spriteTable->DecTextureID();
+            break;
+        }
+        default:
+        {
+        }
+    }
+#else
+    switch (dir)
+    {
+        case EDirection::DOWN:
+        {
+            if (!spriteTable->IsActive())
+                break;
+            spriteTable->MoveProcessStart();
+            spriteTable->ChosenRectIsNotAtTopEnd();
+            if (spriteTable->Cant_move_bottom(spriteTableBorder))
+            {
+                spriteTable->ChosenRectIsAtBottomEnd();
+                break;
+            }
+            spriteTable->SetDirection(EDirection::DOWN);
+            spriteTable->CheckMoveLogic(spriteTableBorder);
+            spriteTable->IncTextureID();
+            break;
+        }
+        case EDirection::UP:
+        {
+            if (!spriteTable->IsActive())
+                break;
+            spriteTable->MoveProcessStart();
+            spriteTable->ChosenRectIsNotAtBottomEnd();
+            if (spriteTable->Cant_move_top(spriteTableBorder))
+            {
+                spriteTable->ChosenRectIsAtTopEnd();
+                break;
+            }
+            spriteTable->SetDirection(EDirection::UP);
+            spriteTable->CheckMoveLogic(spriteTableBorder);
+            spriteTable->DecTextureID();
+            break;
+        }
+        default:
+        {
+        }
+    }
+#endif
 }
 
 void App::DefineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTableBorderType& stb)
@@ -363,7 +421,8 @@ void App::HandleMouseMotion(const SDL_MouseMotionEvent& e)
 void App::HandleButton(const SDL_MouseButtonEvent& e)
 {
 
-    if (!editorTable->IsActive()) return;
+    if (!editorTable->IsActive())
+        return;
 
     if (e.state == SDL_PRESSED)
     {
@@ -371,12 +430,12 @@ void App::HandleButton(const SDL_MouseButtonEvent& e)
         {
             if (doShowCursor)
             {
-                editorTable->PutTextureOnTile(mouseAction.row, mouseAction.col,
-                    spriteTable->GetSpriteTableTextureID());
+                editorTable->PutTextureOnTile(
+                    mouseAction.row, mouseAction.col, spriteTable->GetSpriteTableTextureID());
             }
 #ifdef LOG
             std::cout << "[" << mouseAction.row << ',' << mouseAction.col
-                  << "] id:" << spriteTable->GetSpriteTableTextureID() << '\n';
+                      << "] id:" << spriteTable->GetSpriteTableTextureID() << '\n';
 #endif
         }
         else if (e.button == SDL_BUTTON_RIGHT)
@@ -436,14 +495,12 @@ static void showLightBox(SDL_Renderer* renderer, MouseActionType& ma)
     SDL_RenderFillRect(renderer, &ma.Box);
 }
 
-static void showTiles(SDL_Renderer* renderer,
-                      const EditorTable& et,
-                      const SpriteTable& st)
+static void showTiles(SDL_Renderer* renderer, const EditorTable& et, const SpriteTable& st)
 
 {
 
     // запоминаем текущий "срез" полотна, в котором работаем
-    const RealAndSliceRowCol& realAndSliceRowCol= et.GetRealAndSliseRowCol();
+    const RealAndSliceRowCol& realAndSliceRowCol = et.GetRealAndSliseRowCol();
 
     // берем массив всех "плиток"
     const auto& tiles = et.GetEditorTiles();
@@ -451,12 +508,11 @@ static void showTiles(SDL_Renderer* renderer,
     // запоминаем границы рабочей области
     const SDL_Rect& border = et.GetIntTableBorder();
 
-    // создаем dstRect - прямоугольник на экране, где будет рисоваться 
+    // создаем dstRect - прямоугольник на экране, где будет рисоваться
     // выбранная текстура - "плитка"
     SDL_Rect dstRect{0, 0, static_cast<int>(SPRITE_SIZE), static_cast<int>(SPRITE_SIZE)};
+    auto start = et.GetTiles().startX;
 
-
- 
     for (size_t r = 0; r < realAndSliceRowCol.slice.rows; ++r)
     {
         dstRect.y = border.y + static_cast<int>(r * SPRITE_SIZE);
@@ -465,24 +521,22 @@ static void showTiles(SDL_Renderer* renderer,
         {
             dstRect.x = border.x + static_cast<int>(c * SPRITE_SIZE);
 
-            auto start = et.GetTiles().startX; // на будущее
-
             // определяем текущий индекс в рабочем полотне
-            const size_t idx {r * realAndSliceRowCol.real.cols + start + c};
-            if (idx >= tiles.editorTilesVector.size()) continue;
+            const size_t idx{r * realAndSliceRowCol.real.cols + start + c};
+            if (idx >= tiles.editorTilesVector.size())
+                continue;
 
             // находим tileId в рабочем векторе
-            const int tileId {et.GetTiles().editorTilesVector[idx].tileId};
+            const int tileId{et.GetTiles().editorTilesVector[idx].tileId};
 
             // -1 это пустая ячейка, не рисуем
-            if (tileId < 0) continue;
-            if (static_cast<size_t>(tileId) >= st.VectorSprite().size()) continue;
+            if (tileId < 0)
+                continue;
+            if (static_cast<size_t>(tileId) >= st.VectorSprite().size())
+                continue;
 
-
-                SDL_RenderCopy(renderer, st.AtlasTexture(), 
-                    &st.VectorSprite()[tileId].sourcerect,
-                    &dstRect);
-            
+            SDL_RenderCopy(
+                renderer, st.AtlasTexture(), &st.VectorSprite()[tileId].sourcerect, &dstRect);
         }
     }
 }

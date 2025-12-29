@@ -43,6 +43,7 @@ class App
     void HandleButton(const SDL_MouseButtonEvent& e);
     void CalculateLightBox(const SDL_MouseMotionEvent& e);
     void DefineSpriteBorderSizes(ESpriteBorderOrientation orientation, SpriteTableBorderType& stb);
+    void actionWithSpriteTable(EDirection dir);
 
   public:
       SDL_Renderer* Renderer() const noexcept {return renderer_.get();}
