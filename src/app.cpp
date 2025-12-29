@@ -362,20 +362,30 @@ void App::HandleMouseMotion(const SDL_MouseMotionEvent& e)
 
 void App::HandleButton(const SDL_MouseButtonEvent& e)
 {
-    if (e.button == SDL_BUTTON_LEFT && e.state == SDL_PRESSED)
-    {
-        if (!editorTable->IsActive())
-            return;
 
-        if (doShowCursor)
+    if (!editorTable->IsActive()) return;
+
+    if (e.state == SDL_PRESSED)
+    {
+        if (e.button == SDL_BUTTON_LEFT)
         {
-            editorTable->PutTextureOnTile(
-                mouseAction.row, mouseAction.col, spriteTable->GetSpriteTableTextureID());
-        }
+            if (doShowCursor)
+            {
+                editorTable->PutTextureOnTile(mouseAction.row, mouseAction.col,
+                    spriteTable->GetSpriteTableTextureID());
+            }
 #ifdef LOG
-        std::cout << "[" << mouseAction.row << ',' << mouseAction.col
+            std::cout << "[" << mouseAction.row << ',' << mouseAction.col
                   << "] id:" << spriteTable->GetSpriteTableTextureID() << '\n';
 #endif
+        }
+        else if (e.button == SDL_BUTTON_RIGHT)
+        {
+            if (doShowCursor)
+            {
+                editorTable->RemoveTextureOnTile(mouseAction.row, mouseAction.col);
+            }
+        }
     }
 }
 
@@ -432,16 +442,20 @@ static void showTiles(SDL_Renderer* renderer,
 
 {
 
-    // вектор рисуется не полностью, берется его "срез", который
-    // хранится в editorTable: editorTable->GetRealAndSliseRowCol()
-    // RealAndSliceRowCol realAndSliceRowCol {et->GetRealAndSliceRowCol};
+    // запоминаем текущий "срез" полотна, в котором работаем
     const RealAndSliceRowCol& realAndSliceRowCol= et.GetRealAndSliseRowCol();
+
+    // берем массив всех "плиток"
     const auto& tiles = et.GetEditorTiles();
+
+    // запоминаем границы рабочей области
     const SDL_Rect& border = et.GetIntTableBorder();
 
+    // создаем dstRect - прямоугольник на экране, где будет рисоваться 
+    // выбранная текстура - "плитка"
     SDL_Rect dstRect{0, 0, static_cast<int>(SPRITE_SIZE), static_cast<int>(SPRITE_SIZE)};
 
-    //size_t id{static_cast<size_t>(st.TextureID())};
+
  
     for (size_t r = 0; r < realAndSliceRowCol.slice.rows; ++r)
     {

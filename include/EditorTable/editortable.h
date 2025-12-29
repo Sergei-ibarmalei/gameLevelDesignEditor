@@ -64,15 +64,10 @@ class EditorTable
   private:
     bool init{true};
     bool thisTableIsActive{false};
-    //std::vector<Tile> editorTiles;
     EditorTiles editorTiles;
     std::unique_ptr<EditorTableBorder> tableBorder;
-    //size_t startX {0};
-    //size_t EditorTableTile_rows {0}; // полное количество row в создаваемом полотне (editorTiles.editorTilesVector)
-    //size_t EditorTableTile_cols {0}; // полное количество col в создаваемом полотне
-    //ArraySizes theRealArrayOfTiles;
-    //ArraySizes theSlice;
     RealAndSliceRowCol realAndSliceRowCol {};
+    [[nodiscard]] bool checkIsCursorValid(int row, int col, size_t& idx);
 
   public:
     EditorTable(ESpriteBorderOrientation sbOrientation,
@@ -96,12 +91,9 @@ class EditorTable
     {
             return tableBorder->GetIntBorder(); 
     }
-    //const SDL_Point& GetRealRowsColsEditorTable() const {return tableBorder->GetTheRealRC(); }
-
-    // возвращаем реальное количество rows и cols в editorTable
-    //const VectorSpriteSlice& GetSliceSizes() const {return tableBorder->GetSliseSizes(); }
     const RealAndSliceRowCol& GetRealAndSliseRowCol() const {return realAndSliceRowCol;}
     void PutTextureOnTile(int row, int col, int atlasID);
+    void RemoveTextureOnTile(int row, int col);
     const EditorTiles& GetEditorTiles() const  {return editorTiles;}
 };
 

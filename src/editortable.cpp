@@ -202,28 +202,39 @@ EditorTable::EditorTable(ESpriteBorderOrientation sbOrientation,
    
 }
 
-void EditorTable::PutTextureOnTile(int row, int col, int atlasID)
+bool EditorTable::checkIsCursorValid(int row, int col, size_t& idx)
 {
-    if (row < 0 || col < 0) return;
+    if (row < 0 || col < 0) return false;
     const auto sr = realAndSliceRowCol.slice.rows;
     const auto sc = realAndSliceRowCol.slice.cols;
 
-    if (static_cast<size_t>(row) >= sr) return;
-    if (static_cast<size_t>(col) >= sc) return;
+    if (static_cast<size_t>(row) >= sr) return false;
+    if (static_cast<size_t>(col) >= sc) return false;
 
-    const size_t idx = static_cast<size_t>(row) * realAndSliceRowCol.real.cols +
+    idx = static_cast<size_t>(row) * realAndSliceRowCol.real.cols +
         static_cast<size_t>(editorTiles.startX) +
         static_cast<size_t>(col);
+    if (idx >= editorTiles.editorTilesVector.size()) return false;
+    return true;
+}
 
+void EditorTable::PutTextureOnTile(int row, int col, int atlasID)
+{
 
+    size_t idx {};
+    if (!checkIsCursorValid(row, col, idx)) return;
+     editorTiles.editorTilesVector[idx].tileId = atlasID;
+}
 
-
-    if (idx >= editorTiles.editorTilesVector.size()) return;
-    {
-        editorTiles.editorTilesVector[idx].tileId = atlasID;
-    }
+void EditorTable::RemoveTextureOnTile(int row, int col)
+{
+    size_t idx {};
+    if (!checkIsCursorValid(row, col, idx)) return;
+    editorTiles.editorTilesVector[idx].tileId = -1;
 
 }
+
+
 
 
 
